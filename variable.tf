@@ -23,3 +23,4 @@ variable "db_username" {}
 variable "db_password" {}
 
 variable "vault_token" {}
+variable "region" {}
