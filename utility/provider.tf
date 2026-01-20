@@ -5,7 +5,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket  = "autodiscproject"
+    bucket  = "autodiscbucket"
     key     = "vault-jenkins/terraform.tfstate"
     region  = "eu-west-3"
     profile = "default"
