@@ -1,6 +1,6 @@
 provider "aws" {
     region = "eu-west-3"
-    profile = "default"
+    # profile = "default"
 }
 
 terraform {
@@ -8,7 +8,7 @@ terraform {
    bucket = "autodiscbucket"
    key = "infra/terraform.tfstate"
    region = "eu-west-3"
-   profile = "default"
+  #  profile = "default"
    encrypt = true
   #  use_lockfile = true
  } 
