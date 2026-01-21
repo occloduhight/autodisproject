@@ -1,5 +1,5 @@
 variable "region" {}
-  
+
 #domain
 variable "domain_name" {}
 

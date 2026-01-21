@@ -5,21 +5,24 @@ pipeline {
         terraform 'terraform'
     }
 
+    // Parameters for manual builds
     parameters {
         choice(
             name: 'action',
             choices: ['apply', 'destroy'],
-            description: 'Select the action to perform'
+            description: 'Select the action to perform (only for manual builds)'
         )
     }
 
     triggers {
-        pollSCM('* * * * *') // Runs every minute
+        // Poll SCM every minute for automatic builds
+        pollSCM('* * * * *')
     }
 
     environment {
-        SLACKCHANNEL = 'C0A94TNNGKC'          // Slack channel ID
-        SLACKCREDENTIALS = credentials('slack-bot-token')  // Slack bot token credential in Jenkins
+        SLACKCHANNEL = 'C0A94TNNGKC'               // Your Slack channel ID
+        SLACKCREDENTIALS = credentials('slack-bot-token')  // Slack bot token stored in Jenkins
+        PIPENV_BIN = "${HOME}/.local/bin/pipenv"   // Ensure pipenv is found
     }
 
     stages {
@@ -27,9 +30,14 @@ pipeline {
         stage('IAC Scan') {
             steps {
                 script {
-                    sh 'pip install --user pipenv'
-                    sh 'pipenv install checkov'
-                    sh 'pipenv run checkov -d . -o cli || true'
+                    // Install pipenv if missing
+                    sh """
+                    if ! command -v $PIPENV_BIN &> /dev/null; then
+                        pip install --user pipenv
+                    fi
+                    """
+                    sh "$PIPENV_BIN install checkov || true"
+                    sh "$PIPENV_BIN run checkov -d . -o cli || true"
                 }
             }
         }
@@ -59,6 +67,12 @@ pipeline {
         }
 
         stage('Terraform Action') {
+            when {
+                expression {
+                    // Only run Terraform apply/destroy if manually triggered
+                    return currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause) != null
+                }
+            }
             steps {
                 script {
                     sh "terraform ${params.action} -auto-approve"
