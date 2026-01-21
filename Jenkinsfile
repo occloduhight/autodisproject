@@ -6,7 +6,11 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Select the action to perform')
+        choice(
+            name: 'action',
+            choices: ['apply', 'destroy'],
+            description: 'Select the action to perform'
+        )
     }
 
     triggers {
@@ -14,19 +18,18 @@ pipeline {
     }
 
     environment {
-        SLACKCHANNEL = 'autodisproject'
-        SLACKCREDENTIALS = credentials('slack')
+        SLACKCHANNEL = 'C0A94TNNGKC'          // Slack channel ID
+        SLACKCREDENTIALS = credentials('slack-bot-token')  // Slack bot token credential in Jenkins
     }
 
     stages {
+
         stage('IAC Scan') {
             steps {
                 script {
-                    sh 'pip install pipenv'
-                    sh 'python -m pipenv run pip install checkov'
-                //    sh 'pipenv run pip install checkov'
-                    def checkovStatus = sh(script: 'python -m pipenv run checkov -d . -o cli --output-file checkov-results.txt --quiet', returnStatus: true)
-                    junit allowEmptyResults: true, testResults: 'checkov-results.txt' 
+                    sh 'pip install --user pipenv'
+                    sh 'pipenv install checkov'
+                    sh 'pipenv run checkov -d . -o cli || true'
                 }
             }
         }
@@ -66,14 +69,12 @@ pipeline {
 
     post {
         always {
-            script {
-                slackSend(
-                    channel: env.SLACKCHANNEL,
-                    tokenCredentialId: env.SLACKCREDENTIALS,
-                    color: currentBuild.result == 'SUCCESS' ? 'good' : 'danger',
-                    message: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}) has been completed."
-                )
-            }
+            slackSend(
+                channel: env.SLACKCHANNEL,
+                tokenCredentialId: env.SLACKCREDENTIALS,
+                color: currentBuild.currentResult == 'SUCCESS' ? 'good' : 'danger',
+                message: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' finished: ${env.BUILD_URL}"
+            )
         }
         failure {
             slackSend(

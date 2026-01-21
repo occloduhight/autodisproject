@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 
 # Script configuration variables
 ASG_NAME="petclinicapp-prod-asg"               # Auto Scaling Group name
