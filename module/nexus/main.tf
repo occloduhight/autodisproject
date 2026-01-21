@@ -1,10 +1,10 @@
-data "aws_ami" "ubuntu" {
+data "aws_ami" "rhel_9" {
   most_recent = true
-  owners      = ["099720109477"]
+  owners      = ["309956199498"]
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    values = ["RHEL-9*"]
   }
 
   filter {
@@ -16,7 +16,14 @@ data "aws_ami" "ubuntu" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
 }
+
+
 
 # IAM role for EC2 instances (Nexus) to access SSM
 resource "aws_iam_role" "nexus_ssm_role" {
@@ -108,7 +115,7 @@ resource "aws_security_group" "nexus_elb_sg" {
 
 # Nexus EC2 instance (SSM-only access)
 resource "aws_instance" "nexus" {
-  ami                         = data.aws_ami.ubuntu.id
+  ami                         = data.aws_ami.rhel_9.id
 
   instance_type               = "t2.medium"
   subnet_id                   = var.subnet_id

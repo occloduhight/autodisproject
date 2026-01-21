@@ -1,12 +1,12 @@
 ##!/bin/bash
 
 # Script configuration variables
-ASG_NAME="petclinic2-prod-asg"               # Auto Scaling Group name
+ASG_NAME="petclinicapp-prod-asg"               # Auto Scaling Group name
 REGION="eu-west-3"                 # AWS region
 INVENTORY_FILE="/etc/ansible/prod_hosts"       # Ansible inventory file
 IP_LIST_FILE="/etc/ansible/prod_ips.txt"  # Temporary file to store discovered IPs
-SSH_USER="ec2-user"               # SSH user for RedHat instances
-SSH_KEY_PATH="/home/ec2-user/.ssh/id_rsa"  # Path to SSH private key
+SSH_USER="ubuntu"               # SSH user for ubuntu instances
+SSH_KEY_PATH="/home/ubuntu/.ssh/id_rsa"  # Path to SSH private key
 DOCKER_REPO="nexus.odochidevops.space"    # Nexus Docker repository URL
 DOCKER_USER="admin"        # Docker repository username
 DOCKER_PASSWORD="admin123"    # Docker repository password

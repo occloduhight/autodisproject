@@ -1,30 +1,33 @@
-# Data source to get the latest Ubuntu AMI
-data "aws_ami" "ubuntu" {
+# Data source for latest RedHat AMI
+data "aws_ami" "redhat" {
   most_recent = true
-  owners      = ["099720109477"]  # Canonical
+  owners      = ["309956199498"]
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    values = ["RHEL-9*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
 }
-# ansible IAM Role
+
+# IAM Role for Ansible
 resource "aws_iam_role" "ansible_role" {
-  name = "${var.name}-ansible-discovery-role"
+  name = "${var.name}-ansible-role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-     Action    = "sts:AssumeRole"
-        Effect    = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
   })
 }
 
@@ -71,7 +74,7 @@ resource "aws_security_group" "ansible_sg" {
 }
 
 resource "aws_instance" "ansible_server" {
-  ami                    = data.aws_ami.ubuntu.id
+  ami                    = data.aws_ami.redhat.id
   instance_type          = "t2.micro"
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.ansible_sg.id]

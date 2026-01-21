@@ -1,5 +1,5 @@
 locals {
-  name ="app"
+  name ="petclinicapp"
 }
 
 data "aws_acm_certificate" "jenkins" {

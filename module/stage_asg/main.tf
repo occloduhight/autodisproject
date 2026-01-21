@@ -59,26 +59,41 @@ resource "aws_security_group" "stage_elb_sg" {
 }
 
 # Data source: latest CentOS AMI
-data "aws_ami" "centos" {
+# data "aws_ami" "centos" {
+#   most_recent = true
+#   owners      = ["125523088429"] # CentOS official owner ID
+#   filter {
+#     name   = "name"
+#     values = ["CentOS Stream 9*"]
+#   }
+#   filter {
+#     name   = "architecture"
+#     values = ["x86_64"]
+#   }
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+# }
+data "aws_ami" "redhat" {
   most_recent = true
-  owners      = ["125523088429"] # CentOS official owner ID
+  owners      = ["309956199498"] # RedHat's owner ID
   filter {
     name   = "name"
-    values = ["CentOS Stream 9*"]
-  }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
+    values = ["RHEL-9*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
 }
-
 # Launch Template
 resource "aws_launch_template" "stage_lnch_tmpl" {
-  image_id      = data.aws_ami.centos.id
+  image_id      = data.aws_ami.redhat.id
   name_prefix   = "${var.name}-stage-web-tmpl"
   instance_type = "t2.medium"
   key_name      = var.key_name
