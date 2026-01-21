@@ -23,6 +23,11 @@ pipeline {
         SLACKCHANNEL = 'C0A94TNNGKC'               // Your Slack channel ID
         SLACKCREDENTIALS = credentials('slack-bot-token')  // Slack bot token stored in Jenkins
         PIPENV_BIN = "${HOME}/.local/bin/pipenv"   // Ensure pipenv is found
+
+        // AWS Credentials stored in Jenkins (safe, not in GitHub)
+        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+        AWS_DEFAULT_REGION    = 'eu-west-3'        // Change to your AWS region
     }
 
     stages {

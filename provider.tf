@@ -10,7 +10,7 @@ terraform {
    region = "eu-west-3"
    profile = "default"
    encrypt = true
-   use_lockfile = true
+  #  use_lockfile = true
  } 
 }
 

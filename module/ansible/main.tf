@@ -80,6 +80,7 @@ resource "aws_instance" "ansible_server" {
   vpc_security_group_ids = [aws_security_group.ansible_sg.id]
   subnet_id              = var.subnet_id[0]
   iam_instance_profile = aws_iam_instance_profile.ansible_profile.id
+  monitoring             = true  # Enable detailed monitoring
   depends_on = [aws_s3_object.scripts1, aws_s3_object.scripts2, aws_s3_object.scripts3]
   user_data = templatefile("${path.module}/user_data.sh", {
     private_key         = var.private_key
