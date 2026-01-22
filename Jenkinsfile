@@ -9,19 +9,30 @@ pipeline {
         choice(
             name: 'action',
             choices: ['apply', 'destroy'],
-            description: 'Select the action to perform'
+            description: 'Select Terraform action'
         )
     }
 
     triggers {
-        pollSCM('* * * * *') // Runs every minute
+        pollSCM('* * * * *')
     }
 
     environment {
-        SLACKCHANNEL = 'C0A94TNNGKC'                        // Slack channel ID
-        SLACKCREDENTIALS = credentials('slack-bot-token')   // Slack bot token credential in Jenkins
-        PIPENV_BIN = "${env.HOME}/.local/bin/pipenv"        // Ensures Jenkins finds pipenv
-           
+        // Slack
+        SLACKCHANNEL     = 'C0A94TNNGKC'
+        SLACKCREDENTIALS = credentials('slack-bot-token')
+
+        // Terraform secrets (from Jenkins credentials)
+        TF_VAR_nr_key          = credentials('nr-api-key')
+        TF_VAR_nr_acc_id       = credentials('nr-account-id')
+        TF_VAR_db_username     = credentials('db-username')
+        TF_VAR_db_password     = credentials('db-password')
+        TF_VAR_vault_token     = credentials('vault-token')
+
+        // Non-secret Terraform variables
+        TF_VAR_domain_name     = 'odochidevops.space'
+        TF_VAR_s3_bucket_name = 'autodiscbucket'
+        TF_VAR_region          = 'eu-west-3'
     }
 
     stages {
@@ -29,12 +40,8 @@ pipeline {
         stage('IAC Scan') {
             steps {
                 script {
-                    // Install pipenv if not available
-                    sh "${env.PIPENV_BIN} --version || python3 -m pip install --user pipenv"
-                    // Install checkov dependencies
-                    sh "${env.PIPENV_BIN} install checkov || true"
-                    // Run checkov scan
-                    sh "${env.PIPENV_BIN} run checkov -d . -o cli || true"
+                    sh 'python3 -m pip install --user checkov || true'
+                    sh '~/.local/bin/checkov -d . -o cli || true'
                 }
             }
         }
@@ -65,37 +72,30 @@ pipeline {
 
         stage('Terraform Action') {
             steps {
-                script {
-                    sh "terraform ${params.action} -auto-approve"
-                }
+                sh "terraform ${params.action} -auto-approve"
             }
         }
     }
 
     post {
-        always {
-            slackSend(
-                channel: env.SLACKCHANNEL,
-                tokenCredentialId: env.SLACKCREDENTIALS,
-                color: currentBuild.currentResult == 'SUCCESS' ? 'good' : 'danger',
-                message: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' finished: ${env.BUILD_URL}"
-            )
-        }
-        failure {
-            slackSend(
-                channel: env.SLACKCHANNEL,
-                tokenCredentialId: env.SLACKCREDENTIALS,
-                color: 'danger',
-                message: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' has failed. Check console output at ${env.BUILD_URL}."
-            )
-        }
         success {
             slackSend(
                 channel: env.SLACKCHANNEL,
                 tokenCredentialId: env.SLACKCREDENTIALS,
                 color: 'good',
-                message: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' completed successfully. Check console output at ${env.BUILD_URL}."
+                message: "✅ *SUCCESS*: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' completed successfully.\n${env.BUILD_URL}"
             )
         }
+
+        failure {
+            slackSend(
+                channel: env.SLACKCHANNEL,
+                tokenCredentialId: env.SLACKCREDENTIALS,
+                color: 'danger',
+                message: "❌ *FAILED*: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck logs: ${env.BUILD_URL}"
+            )
+        }
+
+        
     }
 }
