@@ -19,20 +19,19 @@ pipeline {
 
     environment {
         // Slack
-        SLACKCHANNEL     = 'C0A94TNNGKC'
-        SLACKCREDENTIALS = credentials('slack-bot-token')
+        SLACKCHANNEL = 'C0A94TNNGKC'
 
         // Terraform secrets (from Jenkins credentials)
-        TF_VAR_nr_key          = credentials('nr-api-key')
-        TF_VAR_nr_acc_id       = credentials('nr-account-id')
-        TF_VAR_db_username     = credentials('db-username')
-        TF_VAR_db_password     = credentials('db-password')
-        TF_VAR_vault_token     = credentials('vault-token')
+        TF_VAR_nr_key       = credentials('nr-api-key')
+        TF_VAR_nr_acc_id    = credentials('nr-account-id')
+        TF_VAR_db_username  = credentials('db-username')
+        TF_VAR_db_password  = credentials('db-password')
+        TF_VAR_vault_token  = credentials('vault-token')
 
         // Non-secret Terraform variables
-        TF_VAR_domain_name     = 'odochidevops.space'
+        TF_VAR_domain_name  = 'odochidevops.space'
         TF_VAR_s3_bucket_name = 'autodiscbucket'
-        TF_VAR_region          = 'eu-west-3'
+        TF_VAR_region       = 'eu-west-3'
     }
 
     stages {
@@ -79,9 +78,10 @@ pipeline {
 
     post {
         success {
+            // Use credential ID directly instead of env.SLACKCREDENTIALS
             slackSend(
                 channel: env.SLACKCHANNEL,
-                tokenCredentialId: env.SLACKCREDENTIALS,
+                tokenCredentialId: 'slack-bot-token',
                 color: 'good',
                 message: "✅ *SUCCESS*: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' completed successfully.\n${env.BUILD_URL}"
             )
@@ -90,12 +90,10 @@ pipeline {
         failure {
             slackSend(
                 channel: env.SLACKCHANNEL,
-                tokenCredentialId: env.SLACKCREDENTIALS,
+                tokenCredentialId: 'slack-bot-token',
                 color: 'danger',
                 message: "❌ *FAILED*: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck logs: ${env.BUILD_URL}"
             )
         }
-
-        
     }
 }
