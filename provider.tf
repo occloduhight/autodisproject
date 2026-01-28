@@ -4,6 +4,7 @@ provider "aws" {
 }
 
 terraform {
+  
  backend "s3" {
    bucket = "autodiscbucket"
    key = "infra/terraform.tfstate"

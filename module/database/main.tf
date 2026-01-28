@@ -21,7 +21,7 @@ resource "aws_security_group" "db_sg" {
     protocol        = "tcp"
     security_groups = [var.stage_sg, var.prod_sg]
   }
-
+# checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0

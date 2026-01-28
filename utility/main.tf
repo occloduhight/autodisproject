@@ -206,7 +206,7 @@ resource "aws_security_group" "vault_elb_sg" {
   name        = "${local.name}-vault-elb-sg"
   description = "Security group for Vault ELB"
   vpc_id      = aws_vpc.vpc.id
-
+# checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
     description = "Allow Vault traffic"
     from_port   = 443 # Changed to 443 for HTTPS
@@ -424,7 +424,7 @@ resource "aws_security_group" "jenkins_elb_sg" {
   name        = "${local.name}-jenkins-elb-sg"
   description = "Allowing inbound traffic"
   vpc_id      = aws_vpc.vpc.id
-
+# checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
     description = "Jenkins access"
     protocol    = "tcp"

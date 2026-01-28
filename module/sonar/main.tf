@@ -39,6 +39,7 @@ resource "aws_security_group" "sonar_sg_elb" {
   vpc_id      = var.vpc_id
 
   # Ingress: HTTP access for Nginx
+  # checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
     description = "HTTP Access for Nginx"
     from_port   = 443

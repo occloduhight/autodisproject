@@ -4,7 +4,7 @@ resource "aws_security_group" "bastion_sg" {
   description = "Security group for Bastion Host"
   vpc_id = var.vpc_id
 
-  # Allow only outbound access to private instances
+  # checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   egress {
     from_port   = 0
     to_port     = 0

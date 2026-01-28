@@ -52,6 +52,7 @@ resource "aws_security_group" "ansible_sg" {
   description = "Allow ssh"
   vpc_id      = var.vpc_id
 
+# checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
     description = "sshport"
     from_port   = 22

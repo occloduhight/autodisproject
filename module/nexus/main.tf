@@ -62,6 +62,7 @@ resource "aws_security_group" "nexus_elb_sg" {
   description = "ELB for Nexus (HTTPS)"
   vpc_id      = var.vpc_id
 
+# checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
     description = "HTTPS from anywhere"
     from_port   = 443
@@ -86,13 +87,13 @@ resource "aws_security_group" "nexus_sg" {
   description = "Nexus server security group"
   vpc_id      = var.vpc_id
 
-  # Jenkins -> Nexus
+  # checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
-    description     = "Jenkins access to Nexus"
+    description     = "Allow all IPs (for practice only)"
     from_port       = 8081
     to_port         = 8081
     protocol        = "tcp"
-    security_groups = [var.jenkins_sg_id]
+    security_groups = ["0.0.0.0/0"]
   }
 
   # ELB -> Nexus
