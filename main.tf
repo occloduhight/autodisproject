@@ -35,17 +35,18 @@ module "bastion" {
 
 # Nexus Module
 module "nexus" {
-  source      = "./module/nexus"
-  name        = local.name
-  vpc_id      = module.vpc.vpc_id
-  subnet_id   = module.vpc.public_subnet_ids[0]
-  subnet_ids  = module.vpc.public_subnet_ids
-  key_name    = module.vpc.keypair_name
-  domain_name = var.domain_name
-  nr_key      = var.nr_key
-  nr_acc_id   = var.nr_acc_id
-  certificate_arn = var.certificate_arn 
+  source          = "./module/nexus"
+  name            = local.name
+  vpc_id          = module.vpc.vpc_id
+  subnet_id       = module.vpc.public_subnet_ids[0]
+  subnet_ids      = module.vpc.public_subnet_ids
+  key_name        = module.vpc.keypair_name
+  domain_name     = var.domain_name
+  nr_key          = var.nr_key
+  nr_acc_id       = var.nr_acc_id
+  
 }
+
 
 # Ansible Module
 module "ansible" {

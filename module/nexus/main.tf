@@ -59,12 +59,13 @@ resource "aws_iam_instance_profile" "nexus_instance_profile" {
 # Nexus security group
 resource "aws_security_group" "nexus_elb_sg" {
   name        = "${var.name}-nexus-elb-sg"
-  description = "Nexus ELB registry access"
+  description = "ELB for Nexus (HTTPS)"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = 8081
-    to_port     = 8081
+    description = "HTTPS from anywhere"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -75,24 +76,32 @@ resource "aws_security_group" "nexus_elb_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = { Name = "${var.name}-nexus-elb-sg" }
 }
+
+# Nexus EC2 Security Group — allow traffic from ELB and Jenkins
 resource "aws_security_group" "nexus_sg" {
   name        = "${var.name}-nexus-sg"
-  description = "Allow access to Nexus"
+  description = "Nexus server security group"
   vpc_id      = var.vpc_id
 
+  # Jenkins -> Nexus
   ingress {
-    from_port   = 8081
-    to_port     = 8081
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "Jenkins access to Nexus"
+    from_port       = 8081
+    to_port         = 8081
+    protocol        = "tcp"
+    security_groups = [aws_security_group.jenkins_sg.id]
   }
 
+  # ELB -> Nexus
   ingress {
-    from_port   = 8083
-    to_port     = 8083
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "ELB access to Nexus"
+    from_port       = 8081
+    to_port         = 8081
+    protocol        = "tcp"
+    security_groups = [aws_security_group.nexus_elb_sg.id]
   }
 
   egress {
@@ -101,28 +110,9 @@ resource "aws_security_group" "nexus_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = { Name = "${var.name}-nexus-sg" }
 }
-
-# resource "aws_security_group" "nexus_sg" {
-#   name        = "${var.name}-nexus-sg"
-#   description = "Allow ELB to Nexus"
-#   vpc_id      = var.vpc_id
-
-#   ingress {
-#     from_port       = 8081
-#     to_port         = 8081
-#     protocol        = "tcp"
-#     security_groups = [aws_security_group.nexus_elb_sg.id]
-#   }
-
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
-
 # Classic ELB for Nexus
 resource "aws_elb" "nexus_elb" {
   name            = "${var.name}-nexus-elb"
@@ -130,10 +120,10 @@ resource "aws_elb" "nexus_elb" {
   security_groups = [aws_security_group.nexus_elb_sg.id]
 
   listener {
-    lb_port           = 8081
-    lb_protocol       = "tcp"
+    lb_port           = 443
+    lb_protocol       = "https"
     instance_port     = 8081
-    instance_protocol = "tcp"
+    instance_protocol = "http"
   }
 
   health_check {
@@ -150,8 +140,7 @@ resource "aws_elb" "nexus_elb" {
 # Nexus EC2 instance (SSM-only access)
 resource "aws_instance" "nexus" {
   ami                         = data.aws_ami.rhel_9.id
-
-  instance_type               = "t2.medium"
+  instance_type               = "t2.micro"
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.nexus_sg.id]
   iam_instance_profile        = aws_iam_instance_profile.nexus_instance_profile.name
@@ -162,6 +151,7 @@ resource "aws_instance" "nexus" {
     nr_key    = var.nr_key
     nr_acc_id = var.nr_acc_id
   })
+
   root_block_device {
     volume_size = 30
     volume_type = "gp3"
@@ -170,7 +160,6 @@ resource "aws_instance" "nexus" {
 
   tags = { Name = "${var.name}-nexus" }
 }
-
 # Route53 Hosted Zone and ACM Certificate
 data "aws_route53_zone" "my_hosted_zone" {
   name         = var.domain_name

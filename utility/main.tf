@@ -230,7 +230,7 @@ resource "aws_security_group" "vault_elb_sg" {
 # Vault EC2 instance
 resource "aws_instance" "vault_server" {
   ami                         = data.aws_ami.ubuntu.id
-  instance_type               = "t2.medium"
+  instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.public_subnet[0].id
   vpc_security_group_ids      = [aws_security_group.vault_sg.id]
   key_name                    = aws_key_pair.public_key.key_name
@@ -471,7 +471,7 @@ data "aws_ami" "redhat" {
 # -----------------------------
 resource "aws_instance" "jenkins" {
   ami                         = data.aws_ami.redhat.id
-  instance_type               = "t2.large"
+  instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.public_subnet[1].id
   key_name                    = aws_key_pair.public_key.key_name
   vpc_security_group_ids      = [aws_security_group.jenkins_sg.id]
