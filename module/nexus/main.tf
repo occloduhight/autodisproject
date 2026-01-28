@@ -93,7 +93,7 @@ resource "aws_security_group" "nexus_sg" {
     from_port       = 8081
     to_port         = 8081
     protocol        = "tcp"
-    security_groups = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] 
   }
 
   # ELB -> Nexus
