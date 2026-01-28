@@ -92,7 +92,7 @@ resource "aws_security_group" "nexus_sg" {
     from_port       = 8081
     to_port         = 8081
     protocol        = "tcp"
-    security_groups = [aws_security_group.jenkins_sg.id]
+    security_groups = [var.jenkins_sg_id]
   }
 
   # ELB -> Nexus

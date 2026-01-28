@@ -44,7 +44,7 @@ module "nexus" {
   domain_name     = var.domain_name
   nr_key          = var.nr_key
   nr_acc_id       = var.nr_acc_id
-  
+  jenkins_sg_id = aws_security_group.jenkins_sg.id
 }
 
 
