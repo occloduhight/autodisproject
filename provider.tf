@@ -1,13 +1,13 @@
 provider "aws" {
-    region = "eu-west-3"
+    region = "us-east-1"
     # profile = "default"
 }
 
 terraform {
  backend "s3" {
-   bucket = "autodiscbucket"
+   bucket = "autodiscbucket2"
    key = "infra/terraform.tfstate"
-   region = "eu-west-3"
+   region = "us-east-1"
   #  profile = "default"
    encrypt = true
   #  use_lockfile = true

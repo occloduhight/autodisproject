@@ -96,7 +96,7 @@ data "aws_ami" "ubuntu" {
 
 # IAM role for Vault EC2 instance
 resource "aws_iam_role" "vault_ec2_role" {
-  name = "${local.name}-vault-ec2-role"
+  name = "${local.name}-vault-ec2-role1"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -120,7 +120,7 @@ resource "aws_iam_role_policy_attachment" "vault_ssm_attachment" {
 
 # KMS policy for Vault (basic set of operations) - scope as needed
 resource "aws_iam_policy" "vault_kms_policy" {
-  name        = "${local.name}-vault-kms-policy"
+  name        = "${local.name}-vault-kms-policy2"
   description = "Allow KMS operations needed by Vault"
 
   policy = jsonencode({
@@ -171,7 +171,7 @@ resource "aws_iam_role_policy_attachment" "vault_kms_attach" {
 
 # Instance profile for Vault EC2
 resource "aws_iam_instance_profile" "vault_instance_profile" {
-  name = "${local.name}-vault-instance-profile"
+  name = "${local.name}-vault-instance-profile1"
   role = aws_iam_role.vault_ec2_role.name
 }
 
@@ -361,7 +361,7 @@ resource "aws_route53_record" "vault_alias" {
 
 # IAM role for Jenkins EC2 instance
 resource "aws_iam_role" "instance_role" {
-  name               = "${local.name}-Jenkins-role"
+  name               = "${local.name}-Jenkins-role1"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
 }
 
@@ -389,7 +389,7 @@ resource "aws_iam_role_policy_attachment" "admin_attach" {
 
 # Attach role to Jenkins instance profile
 resource "aws_iam_instance_profile" "jenkins_instance_profile" {
-  name = "${local.name}-Jenkins-profile"
+  name = "${local.name}-Jenkins-profile1"
   role = aws_iam_role.instance_role.name
 }
 
@@ -449,20 +449,30 @@ resource "aws_security_group" "jenkins_elb_sg" {
 # -----------------------------
 # Get the latest Red Hat 9 AMI for the region
 # -----------------------------
-data "aws_ami" "redhat" {
+# data "aws_ami" "redhat" {
+#   most_recent = true
+#   owners      = ["309956199498"] # Red Hat official AWS account
+#   filter {
+#     name   = "name"
+#     values = ["RHEL-9.*_HVM-*-x86_64-*"]
+#   }
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+#   filter {
+#     name   = "architecture"
+#     values = ["x86_64"]
+#   }
+# }
+
+data "aws_ami" "amazon_linux" {
   most_recent = true
-  owners      = ["309956199498"] # Red Hat official AWS account
+  owners      = ["amazon"]
+
   filter {
     name   = "name"
-    values = ["RHEL-9.*_HVM-*-x86_64-*"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
 }
 
@@ -470,7 +480,7 @@ data "aws_ami" "redhat" {
 # Jenkins EC2 instance using Red Hat
 # -----------------------------
 resource "aws_instance" "jenkins" {
-  ami                         = data.aws_ami.redhat.id
+  ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t2.micro"
   subnet_id                   = aws_subnet.public_subnet[1].id
   key_name                    = aws_key_pair.public_key.key_name

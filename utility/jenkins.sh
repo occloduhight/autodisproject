@@ -16,7 +16,7 @@ sudo yum upgrade -y
 # Install Amazon SSM Agent & Session Manager plugin
 # -----------------------------
 # Install SSM agent
-sudo dnf install -y "https://s3.${region}.amazonaws.com/amazon-ssm-${region}/latest/linux_amd64/amazon-ssm-agent.rpm"
+sudo yum install -y "https://s3.${region}.amazonaws.com/amazon-ssm-${region}/latest/linux_amd64/amazon-ssm-agent.rpm"
 
 # Download Session Manager plugin
 curl -fsSL https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm -o session-manager-plugin.rpm
