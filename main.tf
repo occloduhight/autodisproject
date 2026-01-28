@@ -38,7 +38,8 @@ module "nexus" {
   domain_name = var.domain_name
   nr_key      = var.nr_key
   nr_acc_id   = var.nr_acc_id
-
+  acm_cert_arn = var.certificate_arn
+  # acm_certificate_arn = data.aws_acm_certificate.jenkins.arn
 }
 
 # --- Ansible Module ---
@@ -67,7 +68,7 @@ module "prod_asg" {
   ansible_sg      = module.ansible.ansible_sg
   nr_key          = var.nr_key
   nr_acc_id       = var.nr_acc_id
-  certificate_arn = var.certificate_arn
+   certificate_arn = var.certificate_arn
   domain_name     = var.domain_name
 }
 

@@ -34,35 +34,29 @@ resource "aws_iam_role" "nexus_ssm_role" {
     Statement = [
       {
         Effect = "Allow",
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        },
+        Principal = { Service = "ec2.amazonaws.com" },
         Action = "sts:AssumeRole"
       }
     ]
   })
 }
 
-# Attach AWS managed policy for SSM access
 resource "aws_iam_role_policy_attachment" "nexus_ssm_managed" {
   role       = aws_iam_role.nexus_ssm_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# Instance profile for attaching the role to the EC2 instance
 resource "aws_iam_instance_profile" "nexus_instance_profile" {
   name = "${var.name}-nexus-instance-profile"
   role = aws_iam_role.nexus_ssm_role.name
 }
 
-
-# Nexus security group
+# Security Groups
 resource "aws_security_group" "nexus_elb_sg" {
   name        = "${var.name}-nexus-elb-sg"
   description = "ELB for Nexus (HTTPS)"
   vpc_id      = var.vpc_id
 
-# checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
     description = "HTTPS from anywhere"
     from_port   = 443
@@ -81,22 +75,19 @@ resource "aws_security_group" "nexus_elb_sg" {
   tags = { Name = "${var.name}-nexus-elb-sg" }
 }
 
-# Nexus EC2 Security Group — allow traffic from ELB and Jenkins
 resource "aws_security_group" "nexus_sg" {
   name        = "${var.name}-nexus-sg"
   description = "Nexus server security group"
   vpc_id      = var.vpc_id
 
-  # checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
-    description     = "Allow all IPs (for practice only)"
-    from_port       = 8081
-    to_port         = 8081
-    protocol        = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] 
+    description = "Allow all IPs (for practice only)"
+    from_port   = 8081
+    to_port     = 8081
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # ELB -> Nexus
   ingress {
     description     = "ELB access to Nexus"
     from_port       = 8081
@@ -114,31 +105,35 @@ resource "aws_security_group" "nexus_sg" {
 
   tags = { Name = "${var.name}-nexus-sg" }
 }
-# Classic ELB for Nexus
-resource "aws_elb" "nexus_elb" {
-  name            = "${var.name}-nexus-elb"
-  subnets         = var.subnet_ids
-  security_groups = [aws_security_group.nexus_elb_sg.id]
 
-  listener {
-    lb_port           = 443
-    lb_protocol       = "https"
-    instance_port     = 8081
-    instance_protocol = "http"
-  }
+# ACM Certificate for ELB
+resource "aws_acm_certificate" "nexus_cert" {
+  domain_name       = "nexus.${var.domain_name}"
+  validation_method = "DNS"
 
-  health_check {
-    target              = "TCP:8081"
-    interval            = 30
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 5
-  }
-
-  instances = [aws_instance.nexus.id]
+  tags = { Name = "${var.name}-nexus-cert" }
 }
 
-# Nexus EC2 instance (SSM-only access)
+
+locals {
+  domain_validation_options = tolist(aws_acm_certificate.nexus_cert.domain_validation_options)
+}
+
+resource "aws_route53_record" "nexus_validation" {
+  zone_id = data.aws_route53_zone.my_hosted_zone.zone_id
+  name    = local.domain_validation_options[0].resource_record_name
+  type    = local.domain_validation_options[0].resource_record_type
+  ttl     = 60
+  records = [local.domain_validation_options[0].resource_record_value]
+}
+
+
+resource "aws_acm_certificate_validation" "nexus_cert_validation" {
+  certificate_arn         = aws_acm_certificate.nexus_cert.arn
+  validation_record_fqdns = [aws_route53_record.nexus_validation.fqdn]
+}
+
+# Nexus EC2 instance
 resource "aws_instance" "nexus" {
   ami                         = data.aws_ami.rhel_9.id
   instance_type               = "t2.micro"
@@ -161,13 +156,38 @@ resource "aws_instance" "nexus" {
 
   tags = { Name = "${var.name}-nexus" }
 }
-# Route53 Hosted Zone and ACM Certificate
+
+# Classic ELB for Nexus
+resource "aws_elb" "nexus_elb" {
+  name            = "${var.name}-nexus-elb"
+  subnets         = var.subnet_ids
+  security_groups = [aws_security_group.nexus_elb_sg.id]
+
+  listener {
+    lb_port           = 443
+    lb_protocol       = "https"
+    instance_port     = 8081
+    instance_protocol = "http"
+    ssl_certificate_id = aws_acm_certificate.nexus_cert.arn
+  }
+
+  health_check {
+    target              = "TCP:8081"
+    interval            = 30
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
+  }
+
+  instances = [aws_instance.nexus.id]
+}
+
+# Route53 Record for Nexus
 data "aws_route53_zone" "my_hosted_zone" {
   name         = var.domain_name
   private_zone = false
 }
 
-# Route53 Record for Nexus Service
 resource "aws_route53_record" "nexus_dns" {
   zone_id = data.aws_route53_zone.my_hosted_zone.zone_id
   name    = "nexus.${var.domain_name}"
@@ -179,4 +199,3 @@ resource "aws_route53_record" "nexus_dns" {
     evaluate_target_health = true
   }
 }
-
