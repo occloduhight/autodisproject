@@ -2,8 +2,8 @@
 set -euo pipefail  # Enable strict error handling
 
 # Set Variables
-BUCKET_NAME="autodiscbucket2"
-AWS_REGION="us-east-1"
+BUCKET_NAME="autodiscbucket"
+AWS_REGION="eu-west-3"
 AWS_PROFILE="default"
 TFVARS_FILE="terraform.auto.tfvars"
 
@@ -69,7 +69,7 @@ echo "Bucket $BUCKET_NAME and all its contents have been deleted."
 
 
 # BUCKET_NAME="autodiscbucket2"
-# AWS_REGION="us-east-1"
+# AWS_REGION="eu-west-3"
 # AWS_PROFILE="default"
 
 # # Function to handle errors

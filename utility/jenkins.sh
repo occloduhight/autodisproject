@@ -104,4 +104,3 @@ sudo NEW_RELIC_API_KEY="${nr_key}" \
 # Hostname
 # -----------------------------
 sudo hostnamectl set-hostname Jenkins-Server
-

@@ -449,39 +449,30 @@ resource "aws_security_group" "jenkins_elb_sg" {
 # -----------------------------
 # Get the latest Red Hat 9 AMI for the region
 # -----------------------------
-# data "aws_ami" "redhat" {
-#   most_recent = true
-#   owners      = ["309956199498"] # Red Hat official AWS account
-#   filter {
-#     name   = "name"
-#     values = ["RHEL-9.*_HVM-*-x86_64-*"]
-#   }
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-#   filter {
-#     name   = "architecture"
-#     values = ["x86_64"]
-#   }
-# }
-
-data "aws_ami" "amazon_linux" {
+data "aws_ami" "redhat" {
   most_recent = true
-  owners      = ["amazon"]
-
+  owners      = ["309956199498"] # Red Hat official AWS account
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["RHEL-9.*_HVM-*-x86_64-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
+
 
 # -----------------------------
 # Jenkins EC2 instance using Red Hat
 # -----------------------------
 resource "aws_instance" "jenkins" {
-  ami                         = data.aws_ami.amazon_linux.id
-  instance_type               = "t2.micro"
+  ami                         = data.aws_ami.redhat.id
+  instance_type               = "t2.large"
   subnet_id                   = aws_subnet.public_subnet[1].id
   key_name                    = aws_key_pair.public_key.key_name
   vpc_security_group_ids      = [aws_security_group.jenkins_sg.id]
@@ -529,7 +520,9 @@ resource "aws_elb" "elb-jenkins" {
     unhealthy_threshold = 5
     timeout             = 5
     interval            = 30
-    target              = "TCP:8080"
+    # target              = "TCP:8080"
+    target = "HTTP:8080/login"
+
   }
 
   instances                   = [aws_instance.jenkins.id]
