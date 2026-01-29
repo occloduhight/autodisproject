@@ -136,7 +136,7 @@ resource "aws_acm_certificate_validation" "nexus_cert_validation" {
 # Nexus EC2 instance
 resource "aws_instance" "nexus" {
   ami                         = data.aws_ami.rhel_9.id
-  instance_type               = "t2.micro"
+  instance_type               = "t2.large"
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.nexus_sg.id]
   iam_instance_profile        = aws_iam_instance_profile.nexus_instance_profile.name
