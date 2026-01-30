@@ -51,6 +51,37 @@ resource "aws_iam_instance_profile" "nexus_instance_profile" {
   role = aws_iam_role.nexus_ssm_role.name
 }
 
+resource "aws_security_group" "nexus_sg" {
+  name        = "${var.name}-nexus-sg"
+  description = "Nexus server security group"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "Allow all IPs (for practice only)"
+    from_port   = 8081
+    to_port     = 8081
+    protocol    = "tcp"
+    security_groups = [aws_security_group.nexus_elb_sg.id]
+  }
+
+  ingress {
+    description     = "Nexus app from ELB"
+    from_port       = 8085
+    to_port         = 8085
+    protocol        = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "${var.name}-nexus-sg" }
+}
+
 # Security Groups
 resource "aws_security_group" "nexus_elb_sg" {
   name        = "${var.name}-nexus-elb-sg"
@@ -58,7 +89,7 @@ resource "aws_security_group" "nexus_elb_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "HTTPS from anywhere"
+    description = "HTTPS"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -73,64 +104,6 @@ resource "aws_security_group" "nexus_elb_sg" {
   }
 
   tags = { Name = "${var.name}-nexus-elb-sg" }
-}
-
-resource "aws_security_group" "nexus_sg" {
-  name        = "${var.name}-nexus-sg"
-  description = "Nexus server security group"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    description = "Allow all IPs (for practice only)"
-    from_port   = 8081
-    to_port     = 8081
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description     = "ELB access to Nexus"
-    from_port       = 8085
-    to_port         = 8085
-    protocol        = "tcp"
-    security_groups = [aws_security_group.nexus_elb_sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "${var.name}-nexus-sg" }
-}
-
-# ACM Certificate for ELB
-resource "aws_acm_certificate" "nexus_cert" {
-  domain_name       = "nexus.${var.domain_name}"
-  validation_method = "DNS"
-
-  tags = { Name = "${var.name}-nexus-cert" }
-}
-
-
-locals {
-  domain_validation_options = tolist(aws_acm_certificate.nexus_cert.domain_validation_options)
-}
-
-resource "aws_route53_record" "nexus_validation" {
-  zone_id = data.aws_route53_zone.my_hosted_zone.zone_id
-  name    = local.domain_validation_options[0].resource_record_name
-  type    = local.domain_validation_options[0].resource_record_type
-  ttl     = 60
-  records = [local.domain_validation_options[0].resource_record_value]
-}
-
-
-resource "aws_acm_certificate_validation" "nexus_cert_validation" {
-  certificate_arn         = aws_acm_certificate.nexus_cert.arn
-  validation_record_fqdns = [aws_route53_record.nexus_validation.fqdn]
 }
 
 # Nexus EC2 instance
@@ -168,7 +141,8 @@ resource "aws_elb" "nexus_elb" {
     lb_protocol       = "https"
     instance_port     = 8081
     instance_protocol = "http"
-    ssl_certificate_id = aws_acm_certificate.nexus_cert.arn
+    ssl_certificate_id = data.aws_acm_certificate.acm-cert.arn
+  
   }
 
   health_check {
@@ -180,6 +154,7 @@ resource "aws_elb" "nexus_elb" {
   }
 
   instances = [aws_instance.nexus.id]
+  tags      = { Name = "${var.name}-nexus-elb" }
 }
 
 # Route53 Record for Nexus
@@ -188,6 +163,18 @@ data "aws_route53_zone" "my_hosted_zone" {
   private_zone = false
 }
 
+# data block to fetch ACM certificate for Nexus
+data "aws_acm_certificate" "acm-cert" {
+  domain      = "*.odochidevops.space"
+  statuses    = ["ISSUED"]
+  most_recent = true
+}
+
+# data "aws_acm_certificate" "acm-cert" {
+#   domain   = var.domain_name
+#   statuses = ["ISSUED"]
+# }
+# Route53 Record for Nexus Service
 resource "aws_route53_record" "nexus_dns" {
   zone_id = data.aws_route53_zone.my_hosted_zone.zone_id
   name    = "nexus.${var.domain_name}"

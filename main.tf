@@ -4,9 +4,9 @@ locals {
 
 # --- ACM Certificate ---
 data "aws_acm_certificate" "jenkins" {
-  domain       = "*.odochidevops.space"
-  statuses     = ["ISSUED"]
-  most_recent  = true
+  domain      = "*.odochidevops.space"
+  statuses    = ["ISSUED"]
+  most_recent = true
 }
 
 # --- VPC Module ---
@@ -29,15 +29,15 @@ module "bastion" {
 
 # --- Nexus Module ---
 module "nexus" {
-  source        = "./module/nexus"   
-  name          = local.name
-  vpc_id      = module.vpc.vpc_id
-  subnet_id   = module.vpc.public_subnet_ids[0]
-  subnet_ids  = module.vpc.public_subnet_ids
-  key_name    = module.vpc.keypair_name
-  domain_name = var.domain_name
-  nr_key      = var.nr_key
-  nr_acc_id   = var.nr_acc_id
+  source       = "./module/nexus"
+  name         = local.name
+  vpc_id       = module.vpc.vpc_id
+  subnet_id    = module.vpc.public_subnet_ids[0]
+  subnet_ids   = module.vpc.public_subnet_ids
+  key_name     = module.vpc.keypair_name
+  domain_name  = var.domain_name
+  nr_key       = var.nr_key
+  nr_acc_id    = var.nr_acc_id
   acm_cert_arn = var.certificate_arn
   # acm_certificate_arn = data.aws_acm_certificate.jenkins.arn
 }
@@ -68,7 +68,7 @@ module "prod_asg" {
   ansible_sg      = module.ansible.ansible_sg
   nr_key          = var.nr_key
   nr_acc_id       = var.nr_acc_id
-   certificate_arn = var.certificate_arn
+  certificate_arn = var.certificate_arn
   domain_name     = var.domain_name
 }
 
