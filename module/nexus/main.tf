@@ -130,6 +130,10 @@ resource "aws_instance" "nexus" {
   tags = { Name = "${var.name}-nexus" }
 }
 
+resource "aws_acm_certificate" "nexus_cert" {
+  domain_name       = "nexus.odochidevops.space"
+  validation_method = "DNS"
+}
 # Classic ELB for Nexus
 resource "aws_elb" "nexus_elb" {
   name            = "${var.name}-nexus-elb"
@@ -144,15 +148,13 @@ resource "aws_elb" "nexus_elb" {
     ssl_certificate_id = data.aws_acm_certificate.acm-cert.arn
   
   }
-
   health_check {
-    target              = "TCP:8081"
+    target              = "HTTP:8081/"
     interval            = 30
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
-  }
-
+}
   instances = [aws_instance.nexus.id]
   tags      = { Name = "${var.name}-nexus-elb" }
 }

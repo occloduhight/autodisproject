@@ -353,12 +353,6 @@ resource "aws_route53_record" "vault_alias" {
   depends_on = [aws_acm_certificate_validation.acm_cert_validation]
 }
 
-
-
-################################
-# Jenkins Server Infrastructure #
-################################
-
 # IAM role for Jenkins EC2 instance
 resource "aws_iam_role" "instance_role" {
   name               = "${local.name}-Jenkins-role1"
@@ -483,13 +477,6 @@ resource "aws_instance" "jenkins" {
     nr_acc_id = var.nr_acc_id
     region    = var.region
   })
-
-  # Pass variables to user-data script
-  # user_data = templatefile("${path.module}/jenkins.sh", {
-  #   newrelic_api_key    = var.nr_key
-  #   newrelic_account_id = var.nr_acc_id
-  #   region              = var.region
-  # })
 
   root_block_device {
     volume_size = 100
