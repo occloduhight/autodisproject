@@ -53,7 +53,7 @@ module "ansible" {
   nr_key         = var.nr_key
   nr_acc_id      = var.nr_acc_id
   s3_bucket_name = var.s3_bucket_name
-  nexus_ip       = module.nexus.nexus_ip
+  # nexus_ip       = module.nexus.nexus_ip
 }
 
 # --- Prod ASG Module ---

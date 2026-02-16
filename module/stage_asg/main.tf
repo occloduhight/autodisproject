@@ -212,7 +212,7 @@ resource "aws_lb_target_group" "stage_target_group" {
 # HTTP Listener
 resource "aws_lb_listener" "stage_listener_http" {
   load_balancer_arn = aws_lb.stage_lb.arn
-  port              = 80
+  port              = 8080
   protocol          = "HTTP"
 
   default_action {

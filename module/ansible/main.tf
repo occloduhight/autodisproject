@@ -88,7 +88,7 @@ resource "aws_instance" "ansible_server" {
     nr_key    = var.nr_key
     nr_acc_id = var.nr_acc_id
     s3_bucket_name      = var.s3_bucket_name
-    nexus_ip            = var.nexus_ip
+    # nexus_ip            = var.nexus_ip
   })
 
   root_block_device {
