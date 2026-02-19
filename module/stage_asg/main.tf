@@ -201,9 +201,8 @@ resource "aws_lb_target_group" "stage_target_group" {
     unhealthy_threshold = 5
     interval            = 30
     timeout             = 5
-    path                = "/"
+    path                = "/" 
   }
-
   tags = {
     Name = "${var.name}-stage-tg"
   }
@@ -212,7 +211,7 @@ resource "aws_lb_target_group" "stage_target_group" {
 # HTTP Listener
 resource "aws_lb_listener" "stage_listener_http" {
   load_balancer_arn = aws_lb.stage_lb.arn
-  port              = 8080
+  port              = 80
   protocol          = "HTTP"
 
   default_action {
