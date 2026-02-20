@@ -1,23 +1,19 @@
 #!/bin/bash
+# set -e
 
 # Update and upgrade system packages
-sudo apt update -y
-sudo apt upgrade -y
+sudo yum update -y
+sudo yum upgrade -y
 
-# Install prerequisites for Docker
-sudo apt install -y ca-certificates curl gnupg lsb-release
+# Install prerequisites
+sudo yum install -y yum-utils curl ca-certificates
 
-# Add Docker GPG key and repository
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Add Docker repository (RHEL/CentOS compatible)
+sudo yum-config-manager --add-repo \
+  https://download.docker.com/linux/centos/docker-ce.repo
 
 # Install Docker Engine
-sudo apt update -y
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo yum install -y docker-ce docker-ce-cli containerd.io
 
 # Start and enable Docker
 sudo systemctl start docker
@@ -29,8 +25,11 @@ sudo usermod -aG docker ec2-user
 # Set hostname
 sudo hostnamectl set-hostname prod-asg
 
-# Install New Relic CLI and agent
+# Install New Relic CLI
 curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash
 
 # Run New Relic installation
-sudo NEW_RELIC_API_KEY="${nr_key}" NEW_RELIC_ACCOUNT_ID="${nr_acc_id}" NEW_RELIC_REGION=EU /usr/local/bin/newrelic install -y
+sudo NEW_RELIC_API_KEY="${newrelic_api_key}" \
+NEW_RELIC_ACCOUNT_ID="${newrelic_account_id}" \
+NEW_RELIC_REGION=EU \
+/usr/local/bin/newrelic install -y

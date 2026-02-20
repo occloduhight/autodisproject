@@ -240,8 +240,8 @@ resource "aws_instance" "vault_server" {
   user_data = templatefile("${path.module}/vault.sh", {
     region    = var.region
     key       = aws_kms_key.vault_kms.id
-    nr_key    = var.nr_key
-    nr_acc_id = var.nr_acc_id
+    newrelic_api_key     = var.newrelic_api_key,
+  newrelic_account_id = var.newrelic_account_id
   })
 
   root_block_device {
@@ -473,8 +473,8 @@ resource "aws_instance" "jenkins" {
   iam_instance_profile        = aws_iam_instance_profile.jenkins_instance_profile.name
   associate_public_ip_address = true
   user_data = templatefile("${path.module}/jenkins.sh", {
-    nr_key    = var.nr_key
-    nr_acc_id = var.nr_acc_id
+    newrelic_api_key     = var.newrelic_api_key,
+    newrelic_account_id = var.newrelic_account_id
     region    = var.region
   })
 

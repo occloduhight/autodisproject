@@ -117,8 +117,8 @@ resource "aws_instance" "nexus" {
   key_name                    = var.key_name
 
   user_data = templatefile("${path.module}/nexus.sh", {
-    nr_key    = var.nr_key
-    nr_acc_id = var.nr_acc_id
+    newrelic_api_key     = var.newrelic_api_key,
+    newrelic_account_id = var.newrelic_account_id
   })
 
   root_block_device {

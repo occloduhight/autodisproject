@@ -4,8 +4,10 @@ variable "subnet_id" {}
 variable "key_name" {}
 variable "domain_name" {}
 variable "public_subnets" {}
-variable "nr_key" {}
-variable "nr_acc_id" {}
+variable "newrelic_api_key" {}
+variable "newrelic_account_id" {}
+# variable "nr_key" {}
+# variable "nr_acc_id" {}
 variable "certificate_arn" {
   type        = string
   description = "ARN of the ACM certificate"

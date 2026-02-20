@@ -85,8 +85,8 @@ resource "aws_instance" "ansible_server" {
   depends_on = [aws_s3_object.scripts1, aws_s3_object.scripts2, aws_s3_object.scripts3]
   user_data = templatefile("${path.module}/user_data.sh", {
     private_key         = var.private_key
-    nr_key    = var.nr_key
-    nr_acc_id = var.nr_acc_id
+    newrelic_api_key     = var.newrelic_api_key,
+    newrelic_account_id = var.newrelic_account_id
     s3_bucket_name      = var.s3_bucket_name
      nexus_ip            = var.nexus_ip
   })

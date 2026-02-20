@@ -38,19 +38,8 @@ variable "db_password" {
   description = "The password for the database"
   sensitive   = true
 }
-
-# New Relic API key
-variable "nr_key" {
-  type        = string
-  description = "New Relic API key"
-  sensitive   = true
-}
-
-# New Relic Account ID
-variable "nr_acc_id" {
-  type        = string
-  description = "New Relic Account ID"
-}
+variable "newrelic_api_key" {}
+variable "newrelic_account_id" {}
 
 # Vault token
 variable "vault_token" {

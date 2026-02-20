@@ -23,8 +23,10 @@ module "bastion" {
   subnets     = module.vpc.public_subnet_ids
   private_key = module.vpc.private_key
   vpc_id      = module.vpc.vpc_id
-  nr_key      = var.nr_key
-  nr_acc_id   = var.nr_acc_id
+  # newrelic_api_key    = var.newrelic_api_key
+  # newrelic_account_id = var.newrelic_account_id
+  # nr_key      = var.nr_key
+  # nr_acc_id   = var.nr_acc_id
 }
 
 # --- Nexus Module ---
@@ -36,8 +38,8 @@ module "nexus" {
   subnet_ids   = module.vpc.public_subnet_ids
   key_name     = module.vpc.keypair_name
   domain_name  = var.domain_name
-  nr_key       = var.nr_key
-  nr_acc_id    = var.nr_acc_id
+  newrelic_api_key    = var.newrelic_api_key
+  newrelic_account_id = var.newrelic_account_id
   acm_cert_arn = var.certificate_arn
   # acm_certificate_arn = data.aws_acm_certificate.jenkins.arn
 }
@@ -50,8 +52,8 @@ module "ansible" {
   subnet_id      = module.vpc.public_subnet_ids
   key_name       = module.vpc.keypair_name
   private_key    = module.vpc.private_key
-  nr_key         = var.nr_key
-  nr_acc_id      = var.nr_acc_id
+  newrelic_api_key    = var.newrelic_api_key
+  newrelic_account_id = var.newrelic_account_id
   s3_bucket_name = var.s3_bucket_name
    nexus_ip       = module.nexus.nexus_ip
 }
@@ -66,8 +68,8 @@ module "prod_asg" {
   key             = module.vpc.keypair_name
   bastion_sg      = module.bastion.bastion_sg
   ansible_sg      = module.ansible.ansible_sg
-  nr_key          = var.nr_key
-  nr_acc_id       = var.nr_acc_id
+  newrelic_api_key    = var.newrelic_api_key
+  newrelic_account_id = var.newrelic_account_id
   certificate_arn = var.certificate_arn
   domain_name     = var.domain_name
 }
@@ -83,8 +85,8 @@ module "stage_asg" {
   bastion_sg      = module.bastion.bastion_sg
   ansible_sg      = module.ansible.ansible_sg
   nexus_ip        = module.nexus.nexus_ip
-  nr_key          = var.nr_key
-  nr_acc_id       = var.nr_acc_id
+  newrelic_api_key    = var.newrelic_api_key
+  newrelic_account_id = var.newrelic_account_id
   certificate_arn = var.certificate_arn
   domain_name     = var.domain_name
 }
@@ -97,8 +99,8 @@ module "sonar" {
   key_name       = module.vpc.keypair_name
   subnet_id      = module.vpc.public_subnet_ids[0]
   public_subnets = module.vpc.public_subnet_ids
-  nr_key         = var.nr_key
-  nr_acc_id      = var.nr_acc_id
+  newrelic_api_key    = var.newrelic_api_key
+  newrelic_account_id = var.newrelic_account_id
   domain_name    = var.domain_name
 }
 

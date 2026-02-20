@@ -6,8 +6,8 @@ variable "ansible_sg" {}
 variable "bastion_sg" {}
 variable "public_subnets" {}
 
-variable "nr_key" {}
-variable "nr_acc_id" {} 
+variable "newrelic_api_key" {}
+variable "newrelic_account_id" {} 
 
 
 variable "certificate_arn" {

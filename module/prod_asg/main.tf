@@ -54,8 +54,8 @@ resource "aws_launch_template" "prod_lt" {
   key_name      = var.key
 
   user_data = base64encode(templatefile("${path.module}/docker.sh", {
-    nr_key     = var.nr_key
-    nr_acc_id = var.nr_acc_id
+  newrelic_api_key     = var.newrelic_api_key,
+  newrelic_account_id = var.newrelic_account_id
   }))
 
   network_interfaces {

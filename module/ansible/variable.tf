@@ -4,8 +4,8 @@ variable "vpc_id" {}
 variable "subnet_id" {}
 variable "key_name" {}
 variable "private_key" {}
-variable "nr_acc_id" {}
-variable "nr_key" {} 
+variable "newrelic_api_key" {}
+variable "newrelic_account_id" {}
 variable "s3_bucket_name" {} 
 variable "nexus_ip" {} 
 

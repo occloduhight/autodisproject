@@ -136,8 +136,8 @@ resource "aws_instance" "sonar_server" {
   iam_instance_profile        = aws_iam_instance_profile.sonar_instance_profile.name
   # User Data Script for all installation and configuration steps
   user_data = templatefile("${path.module}/sonar.sh", {
-    nr_key    = var.nr_key
-    nr_acc_id = var.nr_acc_id
+   newrelic_api_key     = var.newrelic_api_key,
+  newrelic_account_id = var.newrelic_account_id
   })
   tags = {
     Name = "${var.name}-Sonar_Server"
