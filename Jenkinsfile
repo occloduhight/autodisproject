@@ -21,12 +21,13 @@ pipeline {
         // Slack
         SLACKCHANNEL = 'C0A94TNNGKC'
 
+    
         // Terraform secrets (from Jenkins credentials)
-        TF_VAR_nr_key       = credentials('nr-api-key')
-        TF_VAR_nr_acc_id    = credentials('nr-account-id')
-        TF_VAR_db_username  = credentials('db-username')
-        TF_VAR_db_password  = credentials('db-password')
-        TF_VAR_vault_token  = credentials('vault-token')
+            TF_VAR_newrelic_api_key     = credentials('newrelic-api-key')
+            TF_VAR_newrelic_account_id  = credentials('newrelic-account-id')
+            TF_VAR_db_username          = credentials('db-username')
+            TF_VAR_db_password          = credentials('db-password')
+            TF_VAR_vault_token          = credentials('vault-token')
 
         // Non-secret Terraform variables
         TF_VAR_domain_name  = 'odochidevops.space'
