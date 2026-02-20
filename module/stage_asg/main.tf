@@ -196,14 +196,22 @@ resource "aws_lb_target_group" "stage_target_group" {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
-
   health_check {
-    healthy_threshold   = 3
-    unhealthy_threshold = 5
-    interval            = 30
-    timeout             = 5
-    path                = "/" 
-  }
+  path                = "/actuator/health"
+  port                = "8080"
+  healthy_threshold   = 2
+  unhealthy_threshold = 5
+  interval            = 30
+  timeout             = 5
+  matcher             = "200"
+}
+  # health_check {
+  #   healthy_threshold   = 3
+  #   unhealthy_threshold = 5
+  #   interval            = 30
+  #   timeout             = 5
+  #   path                = "/" 
+  # }
   tags = {
     Name = "${var.name}-stage-tg"
   }
