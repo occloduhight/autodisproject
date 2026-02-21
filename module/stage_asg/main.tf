@@ -119,7 +119,7 @@ resource "aws_autoscaling_group" "stage_autoscaling_grp" {
   max_size                  = 3
   min_size                  = 1
   desired_capacity          = 1
-  health_check_grace_period = 120
+  health_check_grace_period = 300
   health_check_type         = "EC2"
   force_delete              = true
 
@@ -196,22 +196,16 @@ resource "aws_lb_target_group" "stage_target_group" {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
-  health_check {
-  path                = "/actuator/health"
-  port                = "8080"
-  healthy_threshold   = 2
+ health_check {
+  path                = "/"
+  protocol            = "HTTP"
+  matcher             = "200-399"
+
+  healthy_threshold   = 3
   unhealthy_threshold = 5
   interval            = 30
   timeout             = 5
-  matcher             = "200"
 }
-  # health_check {
-  #   healthy_threshold   = 3
-  #   unhealthy_threshold = 5
-  #   interval            = 30
-  #   timeout             = 5
-  #   path                = "/" 
-  # }
   tags = {
     Name = "${var.name}-stage-tg"
   }
