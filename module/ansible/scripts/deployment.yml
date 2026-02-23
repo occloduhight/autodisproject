@@ -1,3 +1,5 @@
+
+
 ---
 - name: Docker Container Deployment Playbook
   hosts: webservers
@@ -7,22 +9,66 @@
     docker_user: "admin"
     docker_password: "admin123"
     app_image: "{{ docker_repo }}/nexus-docker-repo/apppetclinic:latest"
+    container_name: "appContainer"
+    container_port: 8080
 
   tasks:
 
-    - name: Force remove existing container if it exists
-      command: /usr/bin/docker rm -f appContainer
-      ignore_errors: true
+    - name: Ensure Docker is installed
+      package:
+        name: docker
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
 
     - name: Login to private Nexus registry
-      shell: echo "{{ docker_password }}" | /usr/bin/docker login {{ docker_repo }} -u {{ docker_user }} --password-stdin
-      no_log: true
+      docker_login:
+        registry_url: "{{ docker_repo }}"
+        username: "{{ docker_user }}"
+        password: "{{ docker_password }}"
 
-    - name: Pull latest application image
-      command: /usr/bin/docker pull {{ app_image }}
+    - name: Pull the latest application image
+      docker_image:
+        name: "{{ app_image }}"
+        source: pull
 
-    - name: Run application container
-      command: /usr/bin/docker run -d --name appContainer -p 8080:8080 --restart unless-stopped {{ app_image }}
+    - name: Ensure application container is running
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ app_image }}"
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "{{ container_port }}:{{ container_port }}"
+        cleanup: true  # Removes old container if needed# ---
+# - name: Docker Container Deployment Playbook
+#   hosts: webservers
+#   become: true
+#   vars:
+#     docker_repo: "nexus.odochidevops.space"
+#     docker_user: "admin"
+#     docker_password: "admin123"
+#     app_image: "{{ docker_repo }}/nexus-docker-repo/apppetclinic:latest"
+
+#   tasks:
+
+#     - name: Force remove existing container if it exists
+#       command: /usr/bin/docker rm -f appContainer
+#       ignore_errors: true
+
+#     - name: Login to private Nexus registry
+#       shell: echo "{{ docker_password }}" | /usr/bin/docker login {{ docker_repo }} -u {{ docker_user }} --password-stdin
+#       no_log: true
+
+#     - name: Pull latest application image
+#       command: /usr/bin/docker pull {{ app_image }}
+
+#     - name: Run application container
+#       command: /usr/bin/docker run -d --name appContainer -p 8080:8080 --restart unless-stopped {{ app_image }}
 # ---
 # - name: Docker Container Deployment Playbook
 #   hosts: webservers
