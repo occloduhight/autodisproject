@@ -15,7 +15,7 @@
       ignore_errors: true
 
     - name: Login to private Nexus registry
-      command: echo "{{ docker_password }}" | /usr/bin/docker login {{ docker_repo }} -u {{ docker_user }} --password-stdin
+      shell: echo "{{ docker_password }}" | /usr/bin/docker login {{ docker_repo }} -u {{ docker_user }} --password-stdin
       no_log: true
 
     - name: Pull latest application image
@@ -23,7 +23,6 @@
 
     - name: Run application container
       command: /usr/bin/docker run -d --name appContainer -p 8080:8080 --restart unless-stopped {{ app_image }}
-
 # ---
 # - name: Docker Container Deployment Playbook
 #   hosts: webservers
