@@ -1,7 +1,7 @@
 ---
 - name: Docker Container Deployment Playbook
   hosts: webservers
-  become: false
+  become: true
 
   vars:
     docker_repo: "nexus.odochidevops.space"
@@ -11,26 +11,29 @@
 
   tasks:
 
-    - name: Login to private Nexus registry
+    - name: Ensure Docker is installed
+      command: docker --version
+      register: docker_check
+      changed_when: false
+
+    - name: Remove existing container if it exists
+      shell: docker rm -f appContainer || true
+
+    - name: Login to Nexus Docker registry
       shell: |
         echo "{{ docker_password }}" | docker login {{ docker_repo }} \
-        -u {{ docker_user }} --password-stdin
-      environment:
-        HOME: "/home/ec2-user"
+        -u "{{ docker_user }}" --password-stdin
+      no_log: true
 
-    - name: Pull latest application image
+    - name: Pull application image from Nexus
       command: docker pull {{ app_image }}
 
-    - name: Stop and remove old container if exists
-      command: docker rm -f appContainer
-      ignore_errors: true
-
     - name: Run application container
-      command: >
-        docker run -d
-        --name appContainer
-        -p 8080:8080
-        --restart unless-stopped
+      shell: |
+        docker run -d \
+        --name appContainer \
+        -p 8080:8080 \
+        --restart unless-stopped \
         {{ app_image }}
 
 # ---
