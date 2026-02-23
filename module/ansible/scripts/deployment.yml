@@ -1,50 +1,83 @@
-
-
 ---
 - name: Docker Container Deployment Playbook
   hosts: webservers
-  become: true
+  become: false
+
   vars:
     docker_repo: "nexus.odochidevops.space"
     docker_user: "admin"
     docker_password: "admin123"
     app_image: "{{ docker_repo }}/nexus-docker-repo/apppetclinic:latest"
-    container_name: "appContainer"
-    container_port: 8080
 
   tasks:
 
-    - name: Ensure Docker is installed
-      package:
-        name: docker
-        state: present
-
-    - name: Start Docker service
-      service:
-        name: docker
-        state: started
-        enabled: true
-
     - name: Login to private Nexus registry
-      docker_login:
-        registry_url: "{{ docker_repo }}"
-        username: "{{ docker_user }}"
-        password: "{{ docker_password }}"
+      shell: |
+        echo "{{ docker_password }}" | docker login {{ docker_repo }} \
+        -u {{ docker_user }} --password-stdin
+      environment:
+        HOME: "/home/ec2-user"
 
-    - name: Pull the latest application image
-      docker_image:
-        name: "{{ app_image }}"
-        source: pull
+    - name: Pull latest application image
+      command: docker pull {{ app_image }}
 
-    - name: Ensure application container is running
-      docker_container:
-        name: "{{ container_name }}"
-        image: "{{ app_image }}"
-        state: started
-        restart_policy: unless-stopped
-        published_ports:
-          - "{{ container_port }}:{{ container_port }}"
-        cleanup: true  # Removes old container if needed# ---
+    - name: Stop and remove old container if exists
+      command: docker rm -f appContainer
+      ignore_errors: true
+
+    - name: Run application container
+      command: >
+        docker run -d
+        --name appContainer
+        -p 8080:8080
+        --restart unless-stopped
+        {{ app_image }}
+
+# ---
+# - name: Docker Container Deployment Playbook
+#   hosts: webservers
+#   become: true
+#   vars:
+#     docker_repo: "nexus.odochidevops.space"
+#     docker_user: "admin"
+#     docker_password: "admin123"
+#     app_image: "{{ docker_repo }}/nexus-docker-repo/apppetclinic:latest"
+#     container_name: "appContainer"
+#     container_port: 8080
+
+#   tasks:
+
+#     - name: Ensure Docker is installed
+#       package:
+#         name: docker
+#         state: present
+
+#     - name: Start Docker service
+#       service:
+#         name: docker
+#         state: started
+#         enabled: true
+
+#     - name: Login to private Nexus registry
+#       docker_login:
+#         registry_url: "{{ docker_repo }}"
+#         username: "{{ docker_user }}"
+#         password: "{{ docker_password }}"
+
+#     - name: Pull the latest application image
+#       docker_image:
+#         name: "{{ app_image }}"
+#         source: pull
+
+#     - name: Ensure application container is running
+#       docker_container:
+#         name: "{{ container_name }}"
+#         image: "{{ app_image }}"
+#         state: started
+#         restart_policy: unless-stopped
+#         published_ports:
+#           - "{{ container_port }}:{{ container_port }}"
+#         cleanup: true  # Removes old container if needed# ---
 # - name: Docker Container Deployment Playbook
 #   hosts: webservers
 #   become: true
