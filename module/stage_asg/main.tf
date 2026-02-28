@@ -44,7 +44,13 @@ resource "aws_security_group" "stage_elb_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
+  ingress {
+    description = "HTTP access from internet"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0
@@ -119,8 +125,9 @@ resource "aws_autoscaling_group" "stage_autoscaling_grp" {
   max_size                  = 3
   min_size                  = 1
   desired_capacity          = 1
-  health_check_grace_period = 300
-  health_check_type         = "EC2"
+  health_check_grace_period = 600
+  health_check_type = "ELB"
+  # health_check_type         = "EC2"
   force_delete              = true
 
   launch_template {
@@ -196,11 +203,11 @@ resource "aws_lb_target_group" "stage_target_group" {
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
-health_check {
+  health_check {
   path                = "/"
   matcher             = "200-399"
   interval            = 30
-  timeout             = 10
+  timeout             = 5
   healthy_threshold   = 3
   unhealthy_threshold = 5
 }
