@@ -23,17 +23,18 @@
       become_user: ec2-user
       shell: echo "admin123" | docker login "{{ NEXUS_REPO }}" -u admin --password-stdin
 
-    - name: Pull latest image from Nexus
+    - name: Manage App Container
       become: yes
       become_user: ec2-user
-      command: docker pull "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
-
-    - name: Run container
-      become: yes
-      become_user: ec2-user
-      shell: |
-        docker run -d \
-          --name appContainer \
-          -p 8080:8080 \
-          --restart always \
-          "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+     
+      community.docker.docker_container:  
+    - name: appContainer
+      image : "{{ NEXUS_REPO  }}/
+      nexus-docker-repo/
+      appetclinic:latest"
+      state : started
+      recreate : yes
+      pull : yes
+      published_ports: 
+         - "8080:8080"
+      restart_policy: always   
