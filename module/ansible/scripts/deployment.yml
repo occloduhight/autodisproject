@@ -2,39 +2,31 @@
 - name: Docker Container Deployment Playbook
   hosts: webservers
   become: true
+
   vars:
     NEXUS_REPO: "nexus.odochidevops.space"
-  
+    IMAGE_NAME: "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+
   tasks:
-    - name: Stop running container
-      command: docker stop appContainer
-      ignore_errors: yes
 
-    - name: Remove stopped container
-      command: docker rm appContainer
-      ignore_errors: yes
-
-    - name: Remove existing image
-      command: docker rmi "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
-      ignore_errors: yes
-
-    - name: Log into private Nexus registry
-      become: yes
-      become_user: ec2-user
+    - name: Login to private Nexus registry
       shell: echo "admin123" | docker login "{{ NEXUS_REPO }}" -u admin --password-stdin
 
-    - name: Manage App Container
-      become: yes
-      become_user: ec2-user
-     
-      community.docker.docker_container:  
-    - name: appContainer
-      image : "{{ NEXUS_REPO  }}/
-      nexus-docker-repo/
-      appetclinic:latest"
-      state : started
-      recreate : yes
-      pull : yes
-      published_ports: 
-         - "8080:8080"
-      restart_policy: always   
+    - name: Remove existing container if present
+      command: docker rm -f appContainer
+      ignore_errors: yes
+
+    - name: Remove existing image if present
+      command: docker rmi "{{ IMAGE_NAME }}"
+      ignore_errors: yes
+
+    - name: Pull latest image
+      command: docker pull "{{ IMAGE_NAME }}"
+
+    - name: Run container
+      command: >
+        docker run -d
+        --name appContainer
+        -p 8080:8080
+        --restart always
+        {{ IMAGE_NAME }}
