@@ -19,20 +19,24 @@
       ignore_errors: yes
 
     - name: Log into private Nexus registry
-      become: yes
       become_user: ec2-user
       shell: echo "admin123" | docker login "{{ NEXUS_REPO }}" -u admin --password-stdin
 
     - name: Pull latest image from Nexus
-      become: yes
       become_user: ec2-user
       command: docker pull "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
-      
-    - name: Stop and remove existing container if running
-      command: docker rm -f appContainer
+
+    - name: Stop old container if running
+      become_user: ec2-user
+      shell: |
+        # check if container exists
+        if docker ps -a --format '{{ "{{.Names}}" }}' | grep -Eq '^appContainer$'; then
+          docker stop appContainer
+          docker rm appContainer
+        fi
       ignore_errors: yes
-    - name: Run container
-      become: yes
+
+    - name: Run new container
       become_user: ec2-user
       shell: |
         docker run -d \
