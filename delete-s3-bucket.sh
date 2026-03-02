@@ -3,7 +3,7 @@ set -euo pipefail  # Enable strict error handling
 
 # Set Variables
 BUCKET_NAME="autodiscbucket"
-AWS_REGION="eu-west-3"
+AWS_REGION="us-east-1"
 AWS_PROFILE="default"
 TFVARS_FILE="terraform.auto.tfvars"
 

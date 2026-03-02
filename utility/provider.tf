@@ -7,7 +7,7 @@ terraform {
   backend "s3" {
     bucket = "autodiscbucket"
     key    = "vault-jenkins/terraform.tfstate"
-    region = "eu-west-3"
+    region = "us-east-1"
     #  profile = "default"
 
     encrypt = true

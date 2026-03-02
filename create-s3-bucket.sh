@@ -5,7 +5,7 @@ set -euo pipefail  # Enable strict error handling
 # Set Variables
 # -----------------------------
 BUCKET_NAME="autodiscbucket"
-AWS_REGION="eu-west-3"
+AWS_REGION="us-east-1"
 PROFILE="default"
 
 # -----------------------------
