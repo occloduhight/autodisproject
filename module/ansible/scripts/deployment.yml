@@ -1,39 +1,50 @@
+---
 - name: Docker Container Deployment Playbook
   hosts: webservers
   become: true
+  vars_files:
+    - /etc/ansible/ansible_variable.yml  # keep tutor's vars logic
   vars:
-    NEXUS_REPO: "nexus.odochidevops.space"
     DB_HOST: "petclinic2-db-instance.us-east-1.rds.amazonaws.com"
     DB_PORT: 3306
 
   tasks:
-    - name: Stop running container
+    - name: Install Docker if not present
       become: yes
-      become_user: ec2-user
-      command: docker stop appContainer
+      become_user: root
+      package:
+        name: docker
+        state: present
+
+    - name: Ensure Docker service is running
+      become: yes
+      become_user: root
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Stop running container
+      command: docker stop appContainerteam
       ignore_errors: yes
 
     - name: Remove stopped container
-      become: yes
-      become_user: ec2-user
-      command: docker rm appContainer
+      command: docker rm appContainerteam
       ignore_errors: yes
 
     - name: Remove existing image
-      become: yes
-      become_user: ec2-user
-      command: docker rmi "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+      command: docker rmi "{{ NEXUS_IP }}/apppetclinic:latest"
       ignore_errors: yes
 
     - name: Log into private Nexus registry
       become: yes
       become_user: ec2-user
-      shell: echo "admin123" | docker login "{{ NEXUS_REPO }}" -u admin --password-stdin
+      shell: echo "admin123" | docker login "{{ NEXUS_IP }}" -u admin --password-stdin
 
     - name: Pull latest image from Nexus
       become: yes
       become_user: ec2-user
-      command: docker pull "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+      command: docker pull "{{ NEXUS_IP }}/apppetclinic:latest"
 
     - name: Ensure Docker network exists
       become: yes
@@ -41,20 +52,14 @@
       shell: |
         docker network inspect app-network >/dev/null 2>&1 || docker network create app-network
 
-    - name: Run app container connected to network
+    - name: Run container with DB connection
       become: yes
       become_user: ec2-user
       shell: |
-        # Remove old container if exists
-        if docker ps -a --format '{{ "{{.Names}}" }}' | grep -q '^appContainer$'; then
-          docker rm -f appContainer
-        fi
-
-        # Run new container
         docker run -d \
-          --name appContainer \
+          --name appContainerteam \
           --network app-network \
           -p 8080:8080 \
           --restart always \
           -e SPRING_DATASOURCE_URL="jdbc:mysql://{{ DB_HOST }}:{{ DB_PORT }}/myproject" \
-          "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+          "{{ NEXUS_IP }}/apppetclinic:latest"
