@@ -111,7 +111,9 @@ user_data = base64encode(templatefile("${path.module}/docker.sh", {
 }))
 
   network_interfaces {
+    associate_public_ip_address = false 
     security_groups = [aws_security_group.stage_sg.id]
+    device_index                = 0        # primary interface
   }
 
   metadata_options {
