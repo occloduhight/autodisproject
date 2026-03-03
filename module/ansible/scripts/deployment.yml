@@ -3,7 +3,9 @@
   become: true
   vars:
     NEXUS_REPO: "nexus.odochidevops.space"
-  
+    DB_HOST: "petclinic2-db-instance.us-east-1.rds.amazonaws.com"
+    DB_PORT: 3306
+
   tasks:
     - name: Stop running container
       become: yes
@@ -33,12 +35,26 @@
       become_user: ec2-user
       command: docker pull "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
 
-    - name: Run container
+    - name: Ensure Docker network exists
       become: yes
       become_user: ec2-user
       shell: |
+        docker network inspect app-network >/dev/null 2>&1 || docker network create app-network
+
+    - name: Run app container connected to network
+      become: yes
+      become_user: ec2-user
+      shell: |
+        # Remove old container if exists
+        if docker ps -a --format '{{ "{{.Names}}" }}' | grep -q '^appContainer$'; then
+          docker rm -f appContainer
+        fi
+
+        # Run new container
         docker run -d \
           --name appContainer \
+          --network app-network \
           -p 8080:8080 \
           --restart always \
+          -e SPRING_DATASOURCE_URL="jdbc:mysql://{{ DB_HOST }}:{{ DB_PORT }}/myproject" \
           "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
