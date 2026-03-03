@@ -11,5 +11,5 @@ variable "newrelic_account_id" {}
 variable "certificate_arn" {
   type        = string
   description = "ARN of the ACM certificate"
-  default     = "arn:aws:acm:eu-west-3:015937138823:certificate/6fd8d6eb-dd5f-493f-89c9-ac911fdf063a"
+  default     = "arn:aws:acm:us-east-1:015937138823:certificate/c78b52ad-829c-4621-a251-979a4f914984"
 }

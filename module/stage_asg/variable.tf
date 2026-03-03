@@ -6,9 +6,14 @@ variable "public_subnets" {}
 variable "nexus_ip" {}
 # variable "nr_key" {}
 # variable "nr_acc_id" {}
-variable "certificate_arn" {}
+# variable "certificate_arn" {}
 variable "domain_name" {}
 variable "ansible_sg" {}
 variable "bastion_sg" {}
 variable "newrelic_api_key" {}
 variable "newrelic_account_id" {}
+variable "certificate_arn" {
+  type        = string
+  description = "ARN of the ACM certificate"
+  default     = "arn:aws:acm:us-east-1:015937138823:certificate/c78b52ad-829c-4621-a251-979a4f914984"
+}
