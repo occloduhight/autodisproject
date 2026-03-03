@@ -3,12 +3,22 @@
   hosts: webservers
   become: true
   vars_files:
-    - /etc/ansible/ansible_variable.yml  # keep tutor's vars logic
+    - /etc/ansible/ansible_variable.yml  # retain tutor's vars logic
   vars:
     DB_HOST: "petclinic2-db-instance.us-east-1.rds.amazonaws.com"
     DB_PORT: 3306
 
   tasks:
+    - name: Install required packages for Docker
+      become: yes
+      become_user: root
+      package:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+
     - name: Install Docker if not present
       become: yes
       become_user: root
@@ -23,6 +33,13 @@
         name: docker
         state: started
         enabled: yes
+
+    - name: Wait for RDS to be available
+      wait_for:
+        host: "{{ DB_HOST }}"
+        port: "{{ DB_PORT }}"
+        delay: 10
+        timeout: 300
 
     - name: Stop running container
       command: docker stop appContainerteam
