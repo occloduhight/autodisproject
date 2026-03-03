@@ -1,4 +1,3 @@
----
 - name: Docker Container Deployment Playbook
   hosts: webservers
   become: true
@@ -7,36 +6,35 @@
   
   tasks:
     - name: Stop running container
+      become: yes
+      become_user: ec2-user
       command: docker stop appContainer
       ignore_errors: yes
 
     - name: Remove stopped container
+      become: yes
+      become_user: ec2-user
       command: docker rm appContainer
       ignore_errors: yes
 
     - name: Remove existing image
+      become: yes
+      become_user: ec2-user
       command: docker rmi "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
       ignore_errors: yes
 
     - name: Log into private Nexus registry
+      become: yes
       become_user: ec2-user
       shell: echo "admin123" | docker login "{{ NEXUS_REPO }}" -u admin --password-stdin
 
     - name: Pull latest image from Nexus
+      become: yes
       become_user: ec2-user
       command: docker pull "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
 
-    - name: Stop old container if running
-      become_user: ec2-user
-      shell: |
-        # check if container exists
-        if docker ps -a --format '{{ "{{.Names}}" }}' | grep -Eq '^appContainer$'; then
-          docker stop appContainer
-          docker rm appContainer
-        fi
-      ignore_errors: yes
-
-    - name: Run new container
+    - name: Run container
+      become: yes
       become_user: ec2-user
       shell: |
         docker run -d \
