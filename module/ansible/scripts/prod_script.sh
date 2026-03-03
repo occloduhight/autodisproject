@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Script configuration variables
-ASG_NAME="petclinicapp-prod-asg"               # Auto Scaling Group name
-REGION="eu-west-3"                 # AWS region
+ASG_NAME="petclinic2-prod-asg"               # Auto Scaling Group name
+REGION="us-east-1"                 # AWS region
 INVENTORY_FILE="/etc/ansible/prod_hosts"       # Ansible inventory file
 IP_LIST_FILE="/etc/ansible/prod_ips.txt"  # Temporary file to store discovered IPs
 SSH_USER="ec2-user"               # SSH user for redhat instances
