@@ -1,5 +1,5 @@
 locals {
-  name = "petclinic2"
+  name = "petclinic"
 }
 
 # --- ACM Certificate ---
