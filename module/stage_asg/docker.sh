@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 set -e  # exit on first error
 
 sudo yum update -y
