@@ -36,14 +36,14 @@ resource "aws_security_group" "db_sg" {
 
 # Create RDS instance
 resource "aws_db_instance" "database" {
-  identifier = "${var.name}-db-instance"
+  identifier = "${var.name}db"
 
   allocated_storage      = 10
   engine                 = "mysql"
   engine_version         = "8.0"
   instance_class         = "db.t3.micro"
   parameter_group_name   = "default.mysql8.0"
-  db_name                = "myproject"
+  db_name                = "petclinic"
   username               = var.db_username
   password               = var.db_password
   skip_final_snapshot    = true
@@ -53,6 +53,6 @@ resource "aws_db_instance" "database" {
   publicly_accessible    = false
 
   tags = {
-    Name = "${var.name}-db-instance"
+    Name = "${var.name}db"
   }
 }
