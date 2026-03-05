@@ -1,5 +1,5 @@
 variable "name" {}
-variable "key" {}
+variable "key_name" {}
 variable "private_subnets" {}
 variable "vpc_id" {}
 variable "ansible_sg" {}
