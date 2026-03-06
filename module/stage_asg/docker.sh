@@ -61,4 +61,3 @@ NEW_RELIC_ACCOUNT_ID="${newrelic_account_id}" \
 NEW_RELIC_REGION=EU \
 /usr/local/bin/newrelic install -y
 
-echo "Setup completed"
