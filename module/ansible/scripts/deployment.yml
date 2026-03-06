@@ -4,36 +4,34 @@
   become: true
   vars:
     NEXUS_REPO: "nexus.odochidevops.space"
-  
+
   tasks:
+
+    - name: Wait for Docker to be ready
+      shell: until docker info; do sleep 5; done
+      
     - name: Stop running container
-      command: docker stop appContainer
-      ignore_errors: yes
+      shell: docker stop appContainer || true
 
     - name: Remove stopped container
-      command: docker rm appContainer
-      ignore_errors: yes
+      shell: docker rm appContainer || true
 
     - name: Remove existing image
-      command: docker rmi "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
-      ignore_errors: yes
+      shell: docker rmi "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest" || true
 
     - name: Log into private Nexus registry
-      become: yes
-      become_user: ec2-user
+      become_user: ubuntu
       shell: echo "admin123" | docker login "{{ NEXUS_REPO }}" -u admin --password-stdin
 
     - name: Pull latest image from Nexus
-      become: yes
-      become_user: ec2-user
+      become_user: ubuntu
       command: docker pull "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
 
     - name: Run container
-      become: yes
-      become_user: ec2-user
+      become_user: ubuntu
       shell: |
         docker run -d \
-          --name appContainer \
-          -p 8080:8080 \
-          --restart always \
-          "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+        --name appContainer \
+        -p 8080:8080 \
+        --restart always \
+        "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
