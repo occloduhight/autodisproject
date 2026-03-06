@@ -65,7 +65,7 @@ module "prod_asg" {
   vpc_id          = module.vpc.vpc_id
   public_subnets  = module.vpc.public_subnet_ids
   private_subnets = module.vpc.private_subnet_ids
-  key             = module.vpc.keypair_name
+  key_name        = module.vpc.keypair_name
   bastion_sg      = module.bastion.bastion_sg
   ansible_sg      = module.ansible.ansible_sg
   newrelic_api_key    = var.newrelic_api_key
