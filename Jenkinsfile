@@ -82,7 +82,7 @@ pipeline {
             // Use credential ID directly instead of env.SLACKCREDENTIALS
             slackSend(
                 channel: env.SLACKCHANNEL,
-                tokenCredentialId: 'slack-bot-token',
+                tokenCredentialId: 'slack',
                 color: 'good',
                 message: "✅ *SUCCESS*: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' completed successfully.\n${env.BUILD_URL}"
             )
@@ -91,7 +91,7 @@ pipeline {
         failure {
             slackSend(
                 channel: env.SLACKCHANNEL,
-                tokenCredentialId: 'slack-bot-token',
+                tokenCredentialId: 'slack',
                 color: 'danger',
                 message: "❌ *FAILED*: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.\nCheck logs: ${env.BUILD_URL}"
             )
