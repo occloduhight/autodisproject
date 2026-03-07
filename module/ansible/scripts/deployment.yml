@@ -4,6 +4,8 @@
   become: true
   vars:
     NEXUS_REPO: "nexus.odochidevops.space"
+    vars:
+  NEXUS_REPO: "nexus.odochidevops.space/nexus-docker-repo"
 
   tasks:
     # --- Install Docker on RHEL 9 ---
