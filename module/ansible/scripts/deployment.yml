@@ -1,37 +1,63 @@
 ---
-- name: Docker Container Deployment Playbook
+- name: Docker Container Deployment Playbook (RHEL 9)
   hosts: webservers
   become: true
   vars:
     NEXUS_REPO: "nexus.odochidevops.space"
 
   tasks:
+    # --- Install Docker on RHEL 9 ---
+    - name: Install prerequisites for Docker
+      package:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
 
-    - name: Wait for Docker to be ready
-      shell: until docker info; do sleep 5; done
-      
-    - name: Stop running container
-      shell: docker stop appContainer || true
+    - name: Add Docker CE repository
+      command: >
+        dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+
+    - name: Install Docker CE
+      package:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Ensure Docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    # --- Docker container deployment tasks ---
+    - name: Stop running container (if any)
+      command: docker stop appContainer
+      ignore_errors: yes
 
     - name: Remove stopped container
-      shell: docker rm appContainer || true
+      command: docker rm appContainer
+      ignore_errors: yes
 
-    - name: Remove existing image
-      shell: docker rmi "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest" || true
+    - name: Remove existing Docker image
+      command: docker rmi "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+      ignore_errors: yes
 
-    - name: Log into private Nexus registry
-      become_user: ubuntu
+    - name: Log into private Nexus Docker registry
       shell: echo "admin123" | docker login "{{ NEXUS_REPO }}" -u admin --password-stdin
 
     - name: Pull latest image from Nexus
-      become_user: ubuntu
       command: docker pull "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
 
     - name: Run container
-      become_user: ubuntu
       shell: |
         docker run -d \
-        --name appContainer \
-        -p 8080:8080 \
-        --restart always \
-        "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"
+          --name appContainer \
+          -p 8080:8080 \
+          --restart always \
+          "{{ NEXUS_REPO }}/nexus-docker-repo/apppetclinic:latest"

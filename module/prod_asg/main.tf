@@ -29,29 +29,12 @@ resource "aws_security_group" "prod_sg" {
     Name = "${var.name}-prod-sg"
   }
 }
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical (Ubuntu) AWS account
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-}
-
-# data "aws_ami" "redhat" {
+# data "aws_ami" "ubuntu" {
 #   most_recent = true
-#   owners      = ["309956199498"] # Red Hat official AWS account
+#   owners      = ["099720109477"] # Canonical (Ubuntu) AWS account
 #   filter {
 #     name   = "name"
-#     values = ["RHEL-9.*_HVM-*-x86_64-*"]
+#     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
 #   }
 #   filter {
 #     name   = "virtualization-type"
@@ -63,9 +46,26 @@ data "aws_ami" "ubuntu" {
 #   }
 # }
 
+data "aws_ami" "redhat" {
+  most_recent = true
+  owners      = ["309956199498"] # Red Hat official AWS account
+  filter {
+    name   = "name"
+    values = ["RHEL-9.*_HVM-*-x86_64-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
 # Create Launch Template
 resource "aws_launch_template" "prod_lt" {
-  image_id      = data.aws_ami.ubuntu.id
+  image_id      = data.aws_ami.redhat.id
   name_prefix   = "${var.name}-prod-web-tmp"
   instance_type = "t2.medium"
   key_name      = var.key_name

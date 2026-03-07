@@ -64,12 +64,12 @@ resource "aws_security_group" "stage_elb_sg" {
   }
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "redhat" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical (Ubuntu) AWS account
+  owners      = ["309956199498"] # Red Hat official AWS account
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+    values = ["RHEL-9.*_HVM-*-x86_64-*"]
   }
   filter {
     name   = "virtualization-type"
@@ -81,27 +81,10 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# Data source: latest CentOS AMI
-# data "aws_ami" "centos" {
-#   most_recent = true
-#   owners      = ["125523088429"] # CentOS official owner ID
-#   filter {
-#     name   = "name"
-#     values = ["CentOS Stream 9*"]
-#   }
-#   filter {
-#     name   = "architecture"
-#     values = ["x86_64"]
-#   }
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-# }
 
 # Launch Template
 resource "aws_launch_template" "stage_lnch_tmpl" {
-  image_id      = data.aws_ami.ubuntu.id
+  image_id      = data.aws_ami.redhat.id
   name_prefix   = "${var.name}-stage-web-tmpl"
   instance_type = "t2.medium"
   key_name      = var.key_name
