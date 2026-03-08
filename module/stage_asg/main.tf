@@ -64,27 +64,47 @@ resource "aws_security_group" "stage_elb_sg" {
   }
 }
 
-data "aws_ami" "redhat" {
+# data "aws_ami" "redhat" {
+#   most_recent = true
+#   owners      = ["309956199498"] # Red Hat official AWS account
+#   filter {
+#     name   = "name"
+#     values = ["RHEL-9.*_HVM-*-x86_64-*"]
+#   }
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+#   filter {
+#     name   = "architecture"
+#     values = ["x86_64"]
+#   }
+# }
+
+# Data source for latest Ubuntu AMI
+data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["309956199498"] # Red Hat official AWS account
+  owners      = ["099720109477"]
+
   filter {
     name   = "name"
-    values = ["RHEL-9.*_HVM-*-x86_64-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
+
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+
   filter {
     name   = "architecture"
     values = ["x86_64"]
   }
 }
 
-
 # Launch Template
 resource "aws_launch_template" "stage_lnch_tmpl" {
-  image_id      = data.aws_ami.redhat.id
+  image_id      = data.aws_ami.ubuntu.id
   name_prefix   = "${var.name}-stage-web-tmpl"
   instance_type = "t2.medium"
   key_name      = var.key_name
