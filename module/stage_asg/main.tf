@@ -127,7 +127,7 @@ user_data = base64encode(templatefile("${path.module}/docker.sh", {
 
 # Create Auto Scaling Group
 resource "aws_autoscaling_group" "stage_autoscaling_grp" {
-  name                      = "${var.name}-stage-asg"
+  name                      = "${var.name}-stage-asg1"
   max_size                  = 3
   min_size                  = 1
   desired_capacity          = 1
@@ -146,7 +146,7 @@ resource "aws_autoscaling_group" "stage_autoscaling_grp" {
 
   tag {
     key                 = "Name"
-    value               = "${var.name}-stage-asg"
+    value               = "${var.name}-stage-asg1"
     propagate_at_launch = true
   }
 }
