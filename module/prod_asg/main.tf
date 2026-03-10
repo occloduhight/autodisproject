@@ -86,7 +86,7 @@ resource "aws_launch_template" "prod_lt" {
 
 # Create Auto Scaling Group
 resource "aws_autoscaling_group" "prod_autoscaling_grp" {
-  name                      = "${var.name}-prod-asg1"
+  name                      = "${var.name}-prod-asg"
   max_size                  = 3
   min_size                  = 1
   desired_capacity          = 1
@@ -102,7 +102,7 @@ resource "aws_autoscaling_group" "prod_autoscaling_grp" {
 
   tag {
     key                 = "Name"
-    value               = "${var.name}-prod-asg1"
+    value               = "${var.name}-prod-asg"
     propagate_at_launch = true
   }
 }
