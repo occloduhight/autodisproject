@@ -151,27 +151,6 @@ resource "aws_autoscaling_group" "stage_autoscaling_grp" {
   }
 }
 
-# resource "aws_autoscaling_group" "stage_autoscaling_grp" {
-#   name                      = "${var.name}-stage-asg"
-#   max_size                  = 3
-#   min_size                  = 1
-#   desired_capacity          = 1
-#   health_check_grace_period = 120
-#   health_check_type         = "EC2"
-#   force_delete              = true
-#   launch_template {
-#     id      = aws_launch_template.stage_lnch_tmpl.id
-#     version = "$Latest"
-#   }
-#   vpc_zone_identifier = var.private_subnets
-#   target_group_arns   = [aws_lb_target_group.stage-target-group.arn]
-
-#   tag {
-#     key                 = "Name"
-#     value               = "${var.name}-stage-asg"
-#     propagate_at_launch = true
-#   }
-# }
 # Autoscaling Policy
 resource "aws_autoscaling_policy" "stage_asg_policy" {
   name                   = "asg-policy"

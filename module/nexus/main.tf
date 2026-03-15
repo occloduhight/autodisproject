@@ -23,8 +23,6 @@ data "aws_ami" "rhel_9" {
   }
 }
 
-
-
 # IAM role for EC2 instances (Nexus) to access SSM
 resource "aws_iam_role" "nexus_ssm_role" {
   name = "${var.name}-nexus-ssm-role"
@@ -172,10 +170,6 @@ data "aws_acm_certificate" "acm-cert" {
   most_recent = true
 }
 
-# data "aws_acm_certificate" "acm-cert" {
-#   domain   = var.domain_name
-#   statuses = ["ISSUED"]
-# }
 # Route53 Record for Nexus Service
 resource "aws_route53_record" "nexus_dns" {
   zone_id = data.aws_route53_zone.my_hosted_zone.zone_id

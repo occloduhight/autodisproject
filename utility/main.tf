@@ -439,10 +439,7 @@ resource "aws_security_group" "jenkins_elb_sg" {
   }
 }
 
-# Get the latest RHEL 9 AMI for the region
-# -----------------------------
 # Get the latest Red Hat 9 AMI for the region
-# -----------------------------
 data "aws_ami" "redhat" {
   most_recent = true
   owners      = ["309956199498"] # Red Hat official AWS account
@@ -460,10 +457,7 @@ data "aws_ami" "redhat" {
   }
 }
 
-
-# -----------------------------
 # Jenkins EC2 instance using Red Hat
-# -----------------------------
 resource "aws_instance" "jenkins" {
   ami                         = data.aws_ami.redhat.id
   instance_type               = "t2.large"

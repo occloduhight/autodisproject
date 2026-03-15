@@ -1,30 +1,14 @@
-# variable "nr_key" {}
-# variable "nr_acc_id" {}
-# variable "domain_name" {
-#   description = "The domain name for SSL certificate or service endpoint"
-#   type        = string
-# }
+
 variable "s3_bucket_name" {
   description = "The name of the S3 bucket for Ansible scripts"
   type        = string
 }
 
-# variable "certificate_arn" {
-#   description = "Wildcard ACM certificate ARN for *.odochidevops.space"
-#   default     = "arn:aws:acm:eu-west-3:015937138823:certificate/6fd8d6eb-dd5f-493f-89c9-ac911fdf063a"
-# }
 variable "certificate_arn" {
   description = "ARN of the ACM certificate for HTTPS"
   type        = string
   default     = "arn:aws:acm:us-east-1:015937138823:certificate/c78b52ad-829c-4621-a251-979a4f914984"
 }
-
-# variable "db_username" {}
-# variable "db_password" {}
-
-# variable "vault_token" {}
-# variable "region" {}
-
 
 # Database username
 variable "db_username" {

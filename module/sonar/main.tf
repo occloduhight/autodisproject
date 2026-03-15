@@ -12,13 +12,6 @@ resource "aws_security_group" "sonar_sg" {
     protocol    = "tcp"
     security_groups = [ aws_security_group.sonar_sg_elb.id ]
   }
-#   ingress {
-#   description     = "SonarQube from ELB"
-#   from_port       = 9000
-#   to_port         = 9000
-#   protocol        = "tcp"
-#   security_groups = [aws_security_group.sonar_sg_elb.id]
-# }
 
   # Egress rule: Allow all outbound traffic
   egress {
@@ -39,7 +32,6 @@ resource "aws_security_group" "sonar_sg_elb" {
   vpc_id      = var.vpc_id
 
   # Ingress: HTTP access for Nginx
-  # checkov:skip=CKV_AWS_24 "Allowed for practice purposes"
   ingress {
     description = "HTTP Access for Nginx"
     from_port   = 443
@@ -111,20 +103,6 @@ data "aws_ami" "latest_ubuntu" {
   }
 }
 
-# data "aws_ami" "ubuntu" {
-#   most_recent = true
-
-#   filter {
-#     name   = "name"
-#     values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-#   }
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-#   owners = ["099720109477"] # Canonical
-# }
-
 # Create sonar Server
 resource "aws_instance" "sonar_server" {
   ami                         = data.aws_ami.latest_ubuntu.id
@@ -191,14 +169,3 @@ resource "aws_route53_record" "sonar" {
     evaluate_target_health = true
   }
 }
-# data block to fetch ACM certificate for Sonarqube
-# data "aws_acm_certificate" "acm-cert" {
-#   domain   = var.domain_name
-#   statuses = ["ISSUED"]
-# }
-# data "aws_acm_certificate" "acm-cert" {
-#   domain   = var.domain_name
-#   statuses = ["ISSUED"]
-#   most_recent = true
-# }
-

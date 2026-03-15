@@ -45,24 +45,6 @@ data "aws_ami" "ubuntu" {
     values = ["x86_64"]
   }
 }
-
-# data "aws_ami" "redhat" {
-#   most_recent = true
-#   owners      = ["309956199498"] # Red Hat official AWS account
-#   filter {
-#     name   = "name"
-#     values = ["RHEL-9.*_HVM-*-x86_64-*"]
-#   }
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-#   filter {
-#     name   = "architecture"
-#     values = ["x86_64"]
-#   }
-# }
-
 # Create Launch Template
 resource "aws_launch_template" "prod_lt" {
   image_id      = data.aws_ami.ubuntu.id
@@ -201,18 +183,6 @@ data "aws_route53_zone" "acp-zone" {
   name         = var.domain_name
   private_zone = false
 }
-
-# data block to fetch ACM certificate for Nexus
-# data "aws_acm_certificate" "acm-cert" {
-#   domain   = var.domain_name
-#   statuses = ["ISSUED"]
-# }
-# data "aws_acm_certificate" "acm-cert" {
-#   domain   = var.domain_name
-#   statuses = ["ISSUED"]
-#   most_recent = true
-# }
-
 
 # Create Route 53 record for prod server
 resource "aws_route53_record" "prod-record" {

@@ -23,10 +23,7 @@ module "bastion" {
   subnets     = module.vpc.public_subnet_ids
   private_key = module.vpc.private_key
   vpc_id      = module.vpc.vpc_id
-  # newrelic_api_key    = var.newrelic_api_key
-  # newrelic_account_id = var.newrelic_account_id
-  # nr_key      = var.nr_key
-  # nr_acc_id   = var.nr_acc_id
+  
 }
 
 # --- Nexus Module ---
@@ -41,7 +38,7 @@ module "nexus" {
   newrelic_api_key    = var.newrelic_api_key
   newrelic_account_id = var.newrelic_account_id
   acm_cert_arn = var.certificate_arn
-  # acm_certificate_arn = data.aws_acm_certificate.jenkins.arn
+ 
 }
 
 # --- Ansible Module ---

@@ -9,13 +9,6 @@ sudo dnf install -y python3 python3-pip git jq curl wget vim
 # --- Upgrade pip and install Ansible 2.15+ ---
 python3 -m pip install --upgrade pip setuptools wheel
 python3 -m pip install "ansible>=2.15" boto3 botocore
-
-# # installing EPEL repository
-# sudo dnf install epel-release -y
-
-# # Installing python3 and pip
-# sudo dnf install python3 python3-pip -y
-
 # Installing awscli
 sudo yum install wget unzip -y
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -29,9 +22,6 @@ sudo ln -svf /usr/local/bin/aws /usr/bin/aws
 echo "${private_key}"  > /home/ec2-user/.ssh/id_rsa 
 sudo chmod 400 /home/ec2-user/.ssh/id_rsa
 sudo chown ec2-user:ec2-user /home/ec2-user/.ssh/id_rsa
-
-# create an ansible variable file
-# echo "NEXUS_IP: ${nexus_ip}:8085"  > /etc/ansible/ansible_variable.yml
 
 # Fetch Ansible playbooks from S3 bucket
 s3_bucket_name="${s3_bucket_name}"
