@@ -2,7 +2,7 @@
 resource "aws_security_group" "bastion_sg" {
   name        = "${var.name}-bastion-sg"
   description = "Security group for Bastion Host"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   egress {
     from_port   = 0
@@ -100,15 +100,15 @@ resource "aws_launch_template" "bastion_lt" {
 # Autoscaling group
 resource "aws_autoscaling_group" "bastion_asg" {
   name                      = "${var.name}-bastion-asg"
-desired_capacity          = 1
-min_size                  = 1
-max_size                  = 1
-vpc_zone_identifier       = var.subnets
-health_check_type         = "EC2"
-health_check_grace_period = 600
-force_delete              = true
+  desired_capacity          = 1
+  min_size                  = 1
+  max_size                  = 1
+  vpc_zone_identifier       = var.subnets
+  health_check_type         = "EC2"
+  health_check_grace_period = 600
+  force_delete              = true
 
-wait_for_capacity_timeout = "30m"
+  wait_for_capacity_timeout = "30m"
 
   launch_template {
     id      = aws_launch_template.bastion_lt.id

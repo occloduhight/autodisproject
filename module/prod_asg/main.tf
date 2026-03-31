@@ -69,7 +69,7 @@ resource "aws_launch_template" "prod_lt" {
 # Create Auto Scaling Group
 resource "aws_autoscaling_group" "prod_autoscaling_grp" {
   name                      = "${var.name}-prod-asg"
-  max_size                  = 3
+  max_size                  = 1
   min_size                  = 1
   desired_capacity          = 1
   health_check_grace_period = 120
